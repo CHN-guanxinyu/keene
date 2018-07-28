@@ -8,6 +8,7 @@ object Dependencies {
     Lib.slf4j_impl,
     Lib.log4j_api,
     Lib.scalactic,
+    Lib.scalaTest,
     Lib.commons_codec
   )
 }
