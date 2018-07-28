@@ -22,7 +22,9 @@ lazy val keene = preownedKittenProject("keene" , ".").
          |upgrade your version of Java.
     """.stripMargin
     }else "" )),
-    libraryDependencies ++= Dependencies.core
+
+    libraryDependencies ++= Dependencies.core,
+    libraryDependencies ++= Lib.spark.all
   ).settings(CommonSetting.projectSettings)
 
 

@@ -22,7 +22,7 @@ object Version{
   val commons_codec = "1.10"
 
   //scala
-  val scala = "2.12.4"
+  val scala = "2.11.8"
   val scalaTest = "3.0.5"
   val scalaCheck = "1.13.0"
   val scalactic = "3.0.5"
@@ -62,7 +62,7 @@ object Lib{
 
   val commons_codec   = "commons-codec"               % "commons-codec"               % Version.commons_codec
 
-  val lombok          = "org.projectlombok"           % "lombok"                      % Version.lombok
+  val lombok          = "org.projectlombok"           % "lombok"                      % Version.lombok        % "provided"
   val scalaCheck      = "org.scalacheck"              %% "scalacheck"                 % Version.scalaCheck
   val scalaTest       = "org.scalatest"               %% "scalatest"                  % Version.scalaTest     % "test"
   val scalactic       = "org.scalactic"               %% "scalactic"                  % Version.scalactic
