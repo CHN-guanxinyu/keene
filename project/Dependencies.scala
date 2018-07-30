@@ -32,7 +32,7 @@ object Version{
   //hadoop
   val hadoop = "2.5.2"
 
-  val kafka = "1.1.0"
+  val kafka = "1.1.1"
 
   //hbase
   val hbase = "1.0.2"
@@ -80,7 +80,7 @@ object Lib{
 
 
   object spark{
-    private def foo( md : String ) = "org.apache.spark" %% s"spark-$md" % Version.spark % "provided"
+    private def foo( md : String ) = "org.apache.spark" %% s"spark-$md" % Version.spark 
 
     val core            = foo("core") excludeAll ExclusionRule(organization="commons-codec")
     val sql             = foo("sql")
@@ -128,7 +128,7 @@ object Lib{
     ExclusionRule(organization="org.slf4j")
   )
 
-  val kafka = "org.apache.kafka" % "kafka_2.11" % Version.kafka excludeAll ExclusionRule("com.fasterxml.jackson.core")
+  val kafka = "org.apache.kafka" %% "kafka" % Version.kafka excludeAll ExclusionRule("com.fasterxml.jackson.core")
 
 //  val scalajs_dom =
 

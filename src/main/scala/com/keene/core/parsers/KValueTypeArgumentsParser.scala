@@ -25,7 +25,7 @@ import scala.reflect.ClassTag
   *
   */
 case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "" )(implicit t: ClassTag[T])
-  extends ArgumentsParser {
+  extends ArgumentsParser[T] {
 
   private lazy val klass = t.runtimeClass
 
@@ -37,7 +37,7 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
     * 3.遍历kv对,对于每个k,找到相应setter,并将v set进去
     * @return
     */
-  def parse: Arguments = {
+  def parse: T = {
     stopIfNeedHelp(args)
 
     val resultObj = defaultInstance
@@ -72,7 +72,7 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
       tryOrElse( _.trim )
     }
 
-    resultObj.asInstanceOf[Arguments]
+    resultObj.asInstanceOf[T]
   }
 
 
@@ -126,7 +126,7 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
 
   //参数实体类由scala自动生成的获取默认参数值的方法
   private lazy val applyDefaultFun =
-    methods.filter(_.getName startsWith "apply$").
+    methods.filter(_.getName startsWith "$lessinit").
     sortBy( _.getName.split("\\$").last toInt )
 
   //参数实体类的所有方法
