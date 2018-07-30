@@ -17,7 +17,7 @@ case class SparkSessionImplicitor(@transient spark : SparkSession){
     spark.
     readStream.
     format("kafka").
-    options( kafkaParam.opts ).
+    options( kafkaParam.get ).
     load
 
   /**

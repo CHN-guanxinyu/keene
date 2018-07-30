@@ -20,7 +20,7 @@ sealed abstract class KafkaParam(
   brokers : String ,
   extraOpts : Map[String,String]
 ) {
-  def opts : Map[String, String]
+  protected def opts : Map[String, String]
   def get : Map[String, String] = Map( "kafka.bootstrap.servers" -> brokers ) ++ opts ++ extraOpts
 }
 
