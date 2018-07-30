@@ -24,7 +24,7 @@ import scala.reflect.ClassTag
   *
   *
   */
-case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "" )(implicit t: ClassTag[T])
+case class KValueTypeArgumentsParser[T]( usage: String = "" )(implicit t: ClassTag[T])
   extends ArgumentsParser[T] {
 
   private lazy val klass = t.runtimeClass
@@ -37,7 +37,7 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
     * 3.遍历kv对,对于每个k,找到相应setter,并将v set进去
     * @return
     */
-  def parse: T = {
+  override def parse(args: Array[String]) : T = {
     stopIfNeedHelp(args)
 
     val resultObj = defaultInstance
@@ -98,12 +98,10 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
   //获取默认参数实体类
   //步骤就是根据`apply$default$num`方法获取局部变量表中第`num`个默认值
   //再填充到已有对象中
-  private def defaultInstance = {
-    val applyDefaultsParams = applyDefaultFun
-    val z = zero
-    val defaultValues = applyDefaultsParams.map(_ invoke z)
-    newInstance(defaultValues)
-  }
+  private def defaultInstance = newInstance( defaultValues )
+
+  //参数实体类默认值列表
+  private lazy val defaultValues: Array[AnyRef] = applyDefaultFun.map(_ invoke zero)
 
   //参数实体类的唯一构造器
   private lazy val constructor = klass.getConstructor(types: _*)
@@ -121,8 +119,7 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
     map(s => s.getName.replaceAll("_\\$eq", "") -> s).
     toMap
 
-  //参数实体类默认值列表
-  private lazy val defaultValues: Array[AnyRef] = applyDefaultFun.map(_ invoke zero)
+
 
   //参数实体类由scala自动生成的获取默认参数值的方法
   private lazy val applyDefaultFun =
@@ -136,7 +133,7 @@ case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "
 
 
   //如果`--help`出现就显示Usage并退出
-  private def stopIfNeedHelp(org: Array[String]) =
+  private def stopIfNeedHelp(org: Array[String]): Unit =
     if (org contains "--help") {
       System.err.println(usage)
       System exit 1

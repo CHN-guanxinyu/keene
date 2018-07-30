@@ -1,5 +1,5 @@
 package com.keene.core.parsers
 
-trait Parser[T] {
-  def parse : T
+trait Parser[F , T] {
+  def parse(raw : F) : T
 }
