@@ -4,18 +4,19 @@ import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.spark.utils.SimpleSpark
 
 object KafkaReadTest extends App with SimpleSpark {
-  val argv = ArgumentsParser[KafkaReadArgs](args).parse
 
-  println(argv.host , argv.topics)
-  /*spark.
+  val arg = ArgumentsParser[KafkaReadArgs](args).parse
+
+  spark.
   readStream.
   format("kafka").
   options(Map(
-    "kafka.bootstrap.host" -> ""
-  ))*/
+    "kafka.bootstrap.servers" -> arg.servers,
+    "subscribe" -> arg.subscribe
+  ))
 }
 
 class KafkaReadArgs(
-  var host : String = "123",
-  var topics : String = ""
+  var servers : String = "",
+  var subscribe : String = ""
 ) extends Arguments
