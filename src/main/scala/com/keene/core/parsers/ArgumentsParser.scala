@@ -6,9 +6,9 @@ import scala.reflect.ClassTag
   * 参数解析器默认实现
   */
 object ArgumentsParser{
-  def apply[T](args : Array[String] , typ : String = "kv" , usage : String = "")(implicit tag: ClassTag[T]): T = {
+  def apply[T](args : Array[String] , typ : String = "kv" )(implicit tag: ClassTag[T]): T = {
     val parser = typ match {
-      case "kv" => KValueTypeArgumentsParser[T]( usage )
+      case "kv" => KValueTypeArgumentsParser[T]
       case _ => throw new IllegalArgumentException(s"parser not found:$typ")
     }
 
@@ -18,4 +18,6 @@ object ArgumentsParser{
 }
 trait ArgumentsParser[T] extends Parser[Array[String] , T]
 
-trait Arguments
+trait Arguments{
+  def usage:String
+}
