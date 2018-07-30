@@ -9,12 +9,16 @@ object KafkaTest extends App with SimpleSpark {
 
   val arg = ArgumentsParser[KafkaReadArgs](args)
 
-  implicit val kafkaParam: KafkaParam = KafkaParam("localhost:9092" , "test")
+  val readParam = KafkaParam( arg.brokers , subscribe = arg.subscribe)
+  val kafkaData = spark fromKafka readParam
 
-  val kafkaDF = spark.fromKafka
+  kafkaData createOrReplaceTempView "t"
 
-  kafkaDF.selectExpr("CAST(key AS STRING)","CAST(value AS STRING)").
-    toKafka.start
+
+  val writeParam = KafkaParam( arg.brokers , topic = arg.topic)
+
+  "select * from t".go toKafka writeParam start
+
 
   spark.streams.awaitAnyTermination
 
@@ -25,5 +29,6 @@ object KafkaTest extends App with SimpleSpark {
 
 class KafkaReadArgs(
   var brokers: String = "",
-  var topics: String = ""
+  var subscribe : String = "" ,
+  var topic: String = ""
 ) extends Arguments
