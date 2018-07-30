@@ -10,15 +10,14 @@ object KafkaTest extends App with SimpleSpark {
   val arg = ArgumentsParser[KafkaReadArgs](args)
 
   val readParam = KafkaParam( arg.brokers , arg.subscribe )
-  val kafkaData = spark fromKafka readParam
 
-  kafkaData createOrReplaceTempView "t"
+  spark fromKafka readParam createOrReplaceTempView "t"
 
+  implicit val writeParam = KafkaParam( arg.brokers , arg.topic , as = "writer")
 
-  val writeParam = KafkaWriterParam( arg.brokers , arg.topic )
+  "select * from t".go.toKafka start
 
-  "select * from t".go toKafka writeParam start
-
+  "select base64(CAST(value as STRING)) value from t".go.toKafka start
 
   spark.streams.awaitAnyTermination
 
