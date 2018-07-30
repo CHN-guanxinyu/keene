@@ -47,29 +47,29 @@ case class KValueTypeArgumentsParser[T]( usage: String = "" )(implicit t: ClassT
 
     pair.foreach { case (k, v) =>
       val w = k drop 2 split "-"
-      val methodName = w.head + w.tail.map(_ capitalize).mkString
+      val varName = w.head + w.tail.map(_ capitalize).mkString
 
-      val setter = namedSetterMapper(methodName)
+      namedSetterMapper.get(varName) foreach { setter =>
+        //处理类型问题
+        //先定义几种方案,当以下方案都不可行则抛异常
+        val plans = Iterator[String => Any](
+          _ toInt ,
+          _ toDouble ,
+          _ toFloat ,
+          _ toBoolean
+        )
 
-      //处理类型问题
-      //先定义几种方案,当以下方案都不可行则抛异常
-      val plans = Iterator[String => Any](
-        _ toInt ,
-        _ toDouble ,
-        _ toFloat ,
-        _ toBoolean
-      )
+        def tryOrElse(plan: String => Any):Unit = {
+          if( plan == null ) throw new IllegalArgumentException("cannot fix the type")
 
-      def tryOrElse(plan: String => Any):Unit = {
-        if( plan == null ) throw new IllegalArgumentException("cannot fix the type")
-
-        try setter.invoke( resultObj, plan(v).asInstanceOf[Object] )
-        catch { case _ =>
-          tryOrElse( plans next() )
+          try setter.invoke( resultObj, plan(v).asInstanceOf[Object] )
+          catch { case _ =>
+            tryOrElse( plans next() )
+          }
         }
-      }
 
-      tryOrElse( _.trim )
+        tryOrElse( _.trim )
+      }
     }
 
     resultObj.asInstanceOf[T]
