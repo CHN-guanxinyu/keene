@@ -2,7 +2,7 @@ package com.keene.core.parsers
 
 object TestArgsParser extends App {
 
-  println( KValueTypeArgumentsParser(args, classOf[MyArgs] ,
+  println( ArgumentsParser[MyArgs](args,
     """
       |Usage : xxx [--int-arg xxx] ....
     """.stripMargin
