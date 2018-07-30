@@ -24,7 +24,7 @@ import scala.reflect.ClassTag
   *
   *
   */
-case class KValueTypeArgumentsParser[T]( usage: String = "" )(implicit t: ClassTag[T])
+case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
   extends ArgumentsParser[T] {
 
   private lazy val klass = t.runtimeClass
@@ -135,7 +135,7 @@ case class KValueTypeArgumentsParser[T]( usage: String = "" )(implicit t: ClassT
   //如果`--help`出现就显示Usage并退出
   private def stopIfNeedHelp(org: Array[String]): Unit =
     if (org contains "--help") {
-      System.err.println(usage)
+      System.err.println(klass getMethod "usage" invoke zero toString)
       System exit 1
     }
 }
