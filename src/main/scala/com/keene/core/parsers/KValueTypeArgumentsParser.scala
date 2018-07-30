@@ -1,44 +1,40 @@
 package com.keene.core.parsers
 
+import scala.reflect.ClassTag
 
+/**
+  * 支持键值对形式的参数解析
+  * Demo:
+  *
+  * KValueTypeArgumentsParser(args, classOf[MyArgs]/MyArgs.getClass ,
+  *   """
+  *   |Usage : xxx [--int-arg xxx] ....
+  *   """.stripMargin
+  * )
+  *
+  * Attention : 下面参数中`var`与默认值为必填
+  * 支持以下几种类型
+  * class MyArgs(
+  *   var intArg: Int = 0,
+  *   var stringArg: String = "111",
+  *   var doubleArg: Double = 0.5,
+  *   var floatArg : Float = 0.2f,
+  *   var booleanArg : Boolean = false
+  * ) extends Arguments
+  *
+  *
+  */
+case class KValueTypeArgumentsParser[T]( args: Array[String] , usage: String = "" )(implicit t: ClassTag[T])
+  extends ArgumentsParser {
 
-object KValueTypeArgumentsParser {
-
-  /**
-    * 支持键值对形式的参数解析
-    * Demo:
-    *
-    * KValueTypeArgumentsParser(args, classOf[MyArgs]/MyArgs.getClass ,
-    *   """
-    *   |Usage : xxx [--int-arg xxx] ....
-    *   """.stripMargin
-    * )
-    *
-    * Attention : 下面参数中`var`与默认值为必填
-    * 支持以下几种类型
-    * class MyArgs(
-    *   var intArg: Int = 0,
-    *   var stringArg: String = "111",
-    *   var doubleArg: Double = 0.5,
-    *   var floatArg : Float = 0.2f,
-    *   var booleanArg : Boolean = false
-    * ) extends Arguments
-    *
-    *
-    *
-    * @param args
-    * @param klass
-    * @param usage
-    * @return
-    */
-  def apply(args: Array[String], klass: Class[_], usage: String = ""): Arguments =
-    new KValueTypeArgumentsParser(args, klass, usage).parse
-}
-
-private class KValueTypeArgumentsParser(args: Array[String], _class: Class[_], usage: String) extends ArgumentsParser {
+  private lazy val klass = t.runtimeClass
 
   /**
     * 解析器主入口
+    * 解析流程
+    * 1.拿到默认参数实体类
+    * 2.将args拼成k-v对
+    * 3.遍历kv对,对于每个k,找到相应setter,并将v set进去
     * @return
     */
   def parse: Arguments = {
@@ -54,6 +50,9 @@ private class KValueTypeArgumentsParser(args: Array[String], _class: Class[_], u
       val methodName = w.head + w.tail.map(_ capitalize).mkString
 
       val setter = namedSetterMapper(methodName)
+
+      //处理类型问题
+      //先定义几种方案,当以下方案都不可行则抛异常
       val plans = Iterator[String => Any](
         _ toInt ,
         _ toDouble ,
@@ -61,62 +60,21 @@ private class KValueTypeArgumentsParser(args: Array[String], _class: Class[_], u
         _ toBoolean
       )
 
-      def tryElse(plan: String => Any):Unit = {
-
+      def tryOrElse(plan: String => Any):Unit = {
         if( plan == null ) throw new IllegalArgumentException("cannot fix the type")
 
-        try setter.invoke(resultObj, plan(v).asInstanceOf[Object])
+        try setter.invoke( resultObj, plan(v).asInstanceOf[Object] )
         catch { case _ =>
-          tryElse(plans.next())
+          tryOrElse( plans next() )
         }
       }
 
-      tryElse( _.trim )
+      tryOrElse( _.trim )
     }
 
     resultObj.asInstanceOf[Arguments]
   }
 
-
-  //按照给定`values`设置参数值
-  def newInstance(values: Array[Object]) = constructor.newInstance(values: _*)
-
-  //获取默认参数实体类
-  def defaultInstance = {
-    val applyDefaultsParams = $adf
-    val z = zero
-    val defaultValues = applyDefaultsParams.map(_ invoke z)
-    newInstance(defaultValues)
-  }
-
-  //参数实体类的唯一构造器
-  lazy val constructor = _class.getConstructor(types: _*)
-
-  //参数实体类构造方法参数类型列表
-  lazy val types: Array[Class[_]] =
-    _class.
-    getDeclaredConstructors.
-    head.
-    getParameterTypes
-
-  //参数实体类成员变量名和对应setter的映射
-  lazy val namedSetterMapper =
-    $setters.map(s => s.getName.replaceAll("_\\$eq", "") -> s).toMap
-
-  //参数实体类默认值列表
-  lazy val defaultValues: Array[AnyRef] = $adf.map(_ invoke zero)
-
-  //参数实体类由scala自动生成的setter方法
-  lazy val $setters =
-    $ms.filter(_.getName endsWith "_$eq")
-
-  //参数实体类由scala自动生成的获取默认参数值的方法
-  lazy val $adf =
-    $ms.filter(_.getName startsWith "apply$").
-      sortBy(_.getName.split("\\$").last.toInt)
-
-  //参数实体类的所有方法
-  lazy val $ms = _class.getDeclaredMethods
 
   //参数实体类零元
   lazy val zero = {
@@ -134,9 +92,51 @@ private class KValueTypeArgumentsParser(args: Array[String], _class: Class[_], u
     newInstance(values)
   }
 
+  //按照给定`values`填充参数值
+  private def newInstance(values: Array[Object]) = constructor.newInstance(values: _*)
+
+  //获取默认参数实体类
+  //步骤就是根据`apply$default$num`方法获取局部变量表中第`num`个默认值
+  //再填充到已有对象中
+  private def defaultInstance = {
+    val applyDefaultsParams = applyDefaultFun
+    val z = zero
+    val defaultValues = applyDefaultsParams.map(_ invoke z)
+    newInstance(defaultValues)
+  }
+
+  //参数实体类的唯一构造器
+  private lazy val constructor = klass.getConstructor(types: _*)
+
+  //参数实体类构造方法参数类型列表
+  private lazy val types: Array[Class[_]] =
+    klass.
+    getDeclaredConstructors.
+    head.
+    getParameterTypes
+
+  //参数实体类成员变量名和对应setter的映射
+  private lazy val namedSetterMapper =
+    methods.filter(_.getName endsWith "_$eq").
+    map(s => s.getName.replaceAll("_\\$eq", "") -> s).
+    toMap
+
+  //参数实体类默认值列表
+  private lazy val defaultValues: Array[AnyRef] = applyDefaultFun.map(_ invoke zero)
+
+  //参数实体类由scala自动生成的获取默认参数值的方法
+  private lazy val applyDefaultFun =
+    methods.filter(_.getName startsWith "apply$").
+    sortBy( _.getName.split("\\$").last toInt )
+
+  //参数实体类的所有方法
+  private lazy val methods = klass.getDeclaredMethods
+
+
+
 
   //如果`--help`出现就显示Usage并退出
-  def stopIfNeedHelp(org: Array[String]) =
+  private def stopIfNeedHelp(org: Array[String]) =
     if (org contains "--help") {
       System.err.println(usage)
       System exit 1
