@@ -2,6 +2,7 @@ package com.keene.core.implicits
 
 import java.nio.charset.{Charset, StandardCharsets}
 
+import com.keene.kafka.KafkaParam
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.spark.input.PortableDataStream
@@ -11,6 +12,13 @@ import scala.util.Try
 
 
 case class SparkSessionImplicitor(@transient spark : SparkSession){
+
+  def fromKafka(implicit kafkaParam: KafkaParam ): DataFrame =
+    spark.
+    readStream.
+    format("kafka").
+    options( kafkaParam.opts ).
+    load
 
   /**
     * load gzip files in given path of default fs

@@ -27,7 +27,8 @@ lazy val keene = preownedKittenProject("keene" , ".").
     libraryDependencies ++= Lib.spark.all,
     libraryDependencies ++= Seq(
       Lib.kafka,
-      Lib.spark.streaming_kafka
+      Lib.spark.streaming_kafka,
+      Lib.spark.sql_kafka
     )
   ).settings(CommonSetting.projectSettings)
 

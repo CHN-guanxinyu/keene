@@ -88,6 +88,7 @@ object Lib{
     val graphx          = foo("graphx")
     val streaming       = foo("streaming")
     val streaming_kafka = foo("streaming-kafka-0-10")
+    val sql_kafka       = foo("sql-kafka-0-10")
 
     val all = Seq( core , sql , mllib , graphx , streaming )
   }
