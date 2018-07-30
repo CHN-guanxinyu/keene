@@ -7,6 +7,6 @@ import org.apache.spark.sql.streaming.DataStreamWriter
 case class DataFrameImplicitor(@transient df : DataFrame) {
   def toKafka(implicit kafkaParam: KafkaParam): DataStreamWriter[Row] =
     df.writeStream.
-    options( kafkaParam.opts ).
+    options( kafkaParam.get ).
     format("kafka")
 }

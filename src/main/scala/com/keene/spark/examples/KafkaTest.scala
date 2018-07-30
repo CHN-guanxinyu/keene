@@ -3,18 +3,21 @@ package com.keene.spark.examples
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.spark.utils.SimpleSpark
 import com.keene.core.implicits._
-import com.keene.kafka.KafkaParam
+import com.keene.kafka.{KafkaParam, KafkaWriterParam}
 
 object KafkaTest extends App with SimpleSpark {
 
   val arg = ArgumentsParser[KafkaReadArgs](args)
 
-  implicit val kafkaParam: KafkaParam = KafkaParam("localhost:9092" , "test")
+  val readParam = KafkaParam( arg.brokers , arg.subscribe )
 
-  val kafkaDF = spark.fromKafka
+  spark fromKafka readParam createOrReplaceTempView "t"
 
-  kafkaDF.selectExpr("CAST(key AS STRING)","CAST(value AS STRING)").
-    toKafka.start
+  implicit val writeParam = KafkaParam( arg.brokers , arg.topic , as = "writer")
+
+  "select * from t".go.toKafka start
+
+  "select base64(CAST(value as STRING)) value from t".go.toKafka start
 
   spark.streams.awaitAnyTermination
 
@@ -25,5 +28,6 @@ object KafkaTest extends App with SimpleSpark {
 
 class KafkaReadArgs(
   var brokers: String = "",
-  var topics: String = ""
+  var subscribe : String = "" ,
+  var topic: String = ""
 ) extends Arguments
