@@ -5,7 +5,8 @@ import com.keene.core.implicits._
 
 object Main extends App {
   val arg = Parser[MainArg](args)
-  s"com.keene.spark.examples.${arg.klass}".as[ExampleRunner] run args ++ Seq(if( arg.man ) "--help" else "")
+  s"com.keene.spark.examples.${arg.klass}".as[ExampleRunner] run
+    args ++ Seq(if( arg.man ) "--help" else "")
 }
 
 class MainArg(
