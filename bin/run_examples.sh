@@ -2,7 +2,6 @@
 
 function run(){
     spark-submit \
-    --master "local[*]" \
     --class "com.keene.spark.examples.main.Main" \
     $*
 }
