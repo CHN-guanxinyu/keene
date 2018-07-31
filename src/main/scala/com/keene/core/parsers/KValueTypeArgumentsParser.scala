@@ -1,5 +1,7 @@
 package com.keene.core.parsers
 
+import org.slf4j.LoggerFactory
+
 import scala.reflect.ClassTag
 
 /**
@@ -43,7 +45,10 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
     val resultObj = defaultInstance
 
     val argsList: List[String] = args toList
-    val pair = argsList.grouped(2).map {
+
+    LoggerFactory.getLogger("Console").info(argsList.mkString("\t"))
+
+    val pair = argsList.grouped(2).filter(l => l.size == 2 && l.head != "" && l.tail.head != "").map {
       case k :: v :: Nil => (k, v)
       case _ => throw new IllegalArgumentException(s"illegal arguments size:${argsList.length}")
     }.toList

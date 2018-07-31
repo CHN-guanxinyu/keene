@@ -36,6 +36,7 @@ class Lv2 extends SimpleSpark with ExampleRunner{
     val unionDS = file.join(kafka , Seq("key")).
       selectExpr("key","concat_ws('' , v1 , v2) as value")
 
+//    unionDS.writeStream.format("console").start
     unionDS.toKafka(writeParam).start
 
     spark.streams.awaitAnyTermination
