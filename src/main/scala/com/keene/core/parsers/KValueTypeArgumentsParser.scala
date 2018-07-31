@@ -43,7 +43,10 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
     val resultObj = defaultInstance
 
     val argsList: List[String] = args toList
-    val pair = argsList.grouped(2).map { case k :: v :: Nil => (k, v) }.toList
+    val pair = argsList.grouped(2).map {
+      case k :: v :: Nil => (k, v)
+      case _ => throw new IllegalArgumentException(s"illegal arguments size:${argsList.length}")
+    }.toList
 
     pair.foreach { case (k, v) =>
       val w = k drop 2 split "-"
