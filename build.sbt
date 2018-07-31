@@ -1,5 +1,3 @@
-
-
 import scala.sys.process.Process
 
 val gitHeadCommitSha = taskKey[String]("determine the current git commit SHA")

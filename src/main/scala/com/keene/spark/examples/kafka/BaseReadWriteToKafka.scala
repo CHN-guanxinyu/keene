@@ -11,10 +11,11 @@ import com.keene.spark.utils.SimpleSpark
   * Streming从Kafka读
   * 转换一下写回Kafka
   */
-class Lv1 extends SimpleSpark with ExampleRunner{
+class BaseReadWriteToKafka extends SimpleSpark with ExampleRunner{
 
   override def run(args: Array[String]): Unit = {
 
+    info(args mkString "\t")
     val arg = ArgumentsParser[Lv1Args](args)
     val readParam = KafkaParam( arg.brokers , arg.subscribe )
 
@@ -42,7 +43,7 @@ class Lv1Args(
   override def usage =
     """
       |Options:
-      |--borkers 逗号分隔的broker列表
+      |--brokers 逗号分隔的broker列表
       |--subscribe 订阅的topic
       |--topic 发布的topic
     """.stripMargin

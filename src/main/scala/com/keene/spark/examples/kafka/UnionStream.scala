@@ -12,7 +12,7 @@ import org.apache.spark.sql.functions._
   * 其实跟是否是Kafka无关了
   * Streaming的范围
   */
-class Lv2 extends SimpleSpark with ExampleRunner{
+class UnionStream extends SimpleSpark with ExampleRunner{
   override def run(args: Array[String]): Unit = {
     import spark.implicits._
 
@@ -36,7 +36,6 @@ class Lv2 extends SimpleSpark with ExampleRunner{
     val unionDS = file.join(kafka , Seq("key")).
       selectExpr("key","concat_ws('' , v1 , v2) as value")
 
-//    unionDS.writeStream.format("console").start
     unionDS.toKafka(writeParam).start
 
     spark.streams.awaitAnyTermination

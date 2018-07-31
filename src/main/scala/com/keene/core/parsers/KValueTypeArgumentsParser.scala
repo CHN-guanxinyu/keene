@@ -46,8 +46,6 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
 
     val argsList: List[String] = args toList
 
-    LoggerFactory.getLogger("Console").info(argsList.mkString("\t"))
-
     val pair = argsList.grouped(2).filter(l => l.size == 2 && l.head != "" && l.tail.head != "").map {
       case k :: v :: Nil => (k, v)
       case _ => throw new IllegalArgumentException(s"illegal arguments size:${argsList.length}")
