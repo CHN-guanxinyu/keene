@@ -4,12 +4,12 @@ package com.keene.kafka
   * 默认类型为读取
   */
 object KafkaParam{
-  def apply[T >: KafkaParam](
+  def apply(
     brokers : String,
     topic : String,
     as: String = "reader",
     extraOpts : Map[String,String] = Map.empty
-  ): T = as match {
+  ): KafkaParam = as match {
     case "reader" => KafkaReaderParam(brokers, topic , extraOpts)
     case "writer" => KafkaWriterParam(brokers, topic , extraOpts)
     case _ => throw new ClassNotFoundException(s"Kafka${as capitalize}Param")
