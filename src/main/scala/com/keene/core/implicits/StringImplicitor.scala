@@ -4,7 +4,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 case class StringImplicitor(@transient str : String) {
-  lazy val spark = SparkSession.builder.getOrCreate
+  lazy val spark = SparkSession.builder.enableHiveSupport.getOrCreate
 
   /**
     * Usage: "package.to.classA".as[classA].foo.bar
