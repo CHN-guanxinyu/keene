@@ -10,12 +10,10 @@ class SearchAppPvAssi extends Runner{
     implicit val date : String = arg.date
     //input
     Map(
-      "log_mark"    ->  sap.fetchGdmOnlineLogMark,
-      "online_log"  ->  sap.fetchGdmM14WirelessOnlineLog
+      "log_mark"    ->  sap.fetchGdmOnlineLogMark
     ).foreach{ case (table , df) => df.createOrReplaceTempView( table )}
 
-    "select browser_uniq_id , count(1) count from log_mark group by browser_uniq_id".go show
+    "select browser_uniq_id , count(1) count from log_mark group by browser_uniq_id order by count desc".go show
 
-    "select browser_uniq_id , count(1) count from online_log group by browser_uniq_id".go show
   }
 }
