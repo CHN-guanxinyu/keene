@@ -24,7 +24,7 @@ class SearchAppPv extends Runner with SimpleSpark{
 
     val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go
 
-    val logMarkExceptOnlineLog = logMark.except( distinctedJoinKLogMark )
+    val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
 
 
 
