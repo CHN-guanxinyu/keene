@@ -7,25 +7,45 @@ import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.DataFrame
 
 class SearchAppPv extends Runner with SimpleSpark{
+
   import spark.implicits._
+
   override def run (args: Array[ String ]): Unit = {
+
     val arg = Parser[Args](args)
     implicit val date : String = arg.date
 
-    //input
-    val tables = "log_mark" :: "online_log" :: Nil
+
+
+
+    //加载数据
     val dataframes @ List(logMark, onlineLog) =
       fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
 
-    val dfMapper = tables.zip( dataframes )
+    //hive表别名,注册临时表
+    //log_mark大表,TB级数据,千万条
+    //online_log小表,GB级数据,上亿条
+    val tables = "log_mark" :: "online_log" :: Nil
+    tables.zip( dataframes ).foreach{ case (table , df) =>
+      df.createOrReplaceTempView( table )
+    }
 
-    dfMapper.foreach{ case (table , df) =>
-      df.createOrReplaceTempView( table ) }
-
+    /**
+      * 核心逻辑
+      * 1.大表joinKey去重后与小表做差得到差集`E`
+      * 2.大表与E做join与原join等价,只不过空值条件刚好相反
+      * 3.发现E是MB级数据,直接做广播消除join
+      * 4.注册spark自定义函数判断joinKey是否在E中
+      *   (1)在,说明当前key不在online_mark中,等价于原join得到的null,则has_behavior=0
+      *   (2)不在,同理,has_behavior=1
+      * 5.通过存入临时目录,再执行load data读入hive表代替直接存hive表
+      *
+      * 最后发现保存文件仍有轻微的数据倾斜,
+      * 之后可以进一步优化
+      */
     val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go
 
     val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
-
 
 
     def broadcastMap(df : DataFrame) =
