@@ -1,6 +1,6 @@
 package com.keene.spark.examples.kafka
 
-import com.keene.core.ExampleRunner
+import com.keene.core.Runner
 import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.kafka.KafkaParam
@@ -11,7 +11,7 @@ import com.keene.spark.utils.SimpleSpark
   * Streming从Kafka读
   * 转换一下写回Kafka
   */
-class BaseReadWriteToKafka extends SimpleSpark with ExampleRunner{
+class BaseReadWriteToKafka extends SimpleSpark with Runner{
 
   override def run(args: Array[String]): Unit = {
 

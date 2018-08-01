@@ -1,18 +1,18 @@
 package com.keene.spark.examples.kafka
 
-import com.keene.core.ExampleRunner
-import com.keene.core.parsers.{Arguments, ArgumentsParser}
-import com.keene.kafka.{KafkaParam, KafkaWriterParam}
-import com.keene.spark.utils.SimpleSpark
+import com.keene.core.Runner
 import com.keene.core.implicits._
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import com.keene.core.parsers.{Arguments, ArgumentsParser}
+import com.keene.kafka.KafkaParam
+import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 /**
   * 多流聚合
   * 其实跟是否是Kafka无关了
   * Streaming的范围
   */
-class UnionStream extends SimpleSpark with ExampleRunner{
+class UnionStream extends SimpleSpark with Runner{
   override def run(args: Array[String]): Unit = {
     import spark.implicits._
 
