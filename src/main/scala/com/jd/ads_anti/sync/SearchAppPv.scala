@@ -13,7 +13,7 @@ class SearchAppPv extends Runner {
     //input
     Map(
       "log_mark"    ->  fetchGdmOnlineLogMark,
-      "online_log"  ->  fetchGdmM14WirelessOnlineLog.cache
+      "online_log"  ->  fetchGdmM14WirelessOnlineLog
     ).foreach{ case (table , df) => df.createOrReplaceTempView( table )}
 
     //result view
@@ -34,6 +34,8 @@ class SearchAppPv extends Runner {
       partition (dt = '$date')
       select * from result
     """.go
+
+
   }
 
   def fetchGdmOnlineLogMark(implicit date : String) : DataFrame =
