@@ -1,8 +1,8 @@
 package com.keene.spark.examples.kafka
 
+import com.keene.core.ExampleRunner
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.kafka.{KafkaParam, KafkaWriterParam}
-import com.keene.spark.examples.main.ExampleRunner
 import com.keene.spark.utils.SimpleSpark
 import com.keene.core.implicits._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

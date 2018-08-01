@@ -1,11 +1,12 @@
 package com.keene.spark.examples.main
 
-import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
+import com.keene.core.Runner
 import com.keene.core.implicits._
+import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
 
 object Main extends App {
   val arg = Parser[MainArg](args)
-  s"com.keene.spark.examples.${arg.klass}".as[ExampleRunner] run
+  s"com.keene.spark.examples.${arg.klass}".as[Runner] run
     args ++ Seq(if( arg.man ) "--help" else "")
 }
 

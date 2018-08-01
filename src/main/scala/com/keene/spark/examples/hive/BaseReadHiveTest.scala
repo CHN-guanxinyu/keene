@@ -1,7 +1,7 @@
 package com.keene.spark.examples.hive
 
+import com.keene.core.ExampleRunner
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
-import com.keene.spark.examples.main.ExampleRunner
 import com.keene.spark.utils.SimpleSpark
 import com.keene.core.implicits._
 

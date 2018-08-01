@@ -1,9 +1,9 @@
 package com.keene.spark.examples.kafka
 
+import com.keene.core.ExampleRunner
 import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.kafka.KafkaParam
-import com.keene.spark.examples.main.ExampleRunner
 import com.keene.spark.utils.SimpleSpark
 
 /**
