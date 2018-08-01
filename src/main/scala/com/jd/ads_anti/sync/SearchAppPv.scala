@@ -13,9 +13,10 @@ class SearchAppPv extends Runner {
     //input
     Map(
       "log_mark"    ->  fetchGdmOnlineLogMark,
-      "online_log"  ->  fetchGdmM14WirelessOnlineLog
+      "online_log"  ->  fetchGdmM14WirelessOnlineLog.cache
     ).foreach{ case (table , df) => df.createOrReplaceTempView( table )}
 
+    //result view
     """
       select
         log_mark.*,
@@ -26,6 +27,7 @@ class SearchAppPv extends Runner {
         on log_mark.browser_uniq_id = online_log.browser_uniq_id
     """.go.createOrReplaceTempView("result")
 
+    //save to result table on hive
     s"""
       insert overwrite table
         ${arg.resultTable}
