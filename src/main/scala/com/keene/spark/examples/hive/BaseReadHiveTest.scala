@@ -1,11 +1,10 @@
 package com.keene.spark.examples.hive
 
-import com.keene.core.ExampleRunner
+import com.keene.core.Runner
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.spark.utils.SimpleSpark
-import com.keene.core.implicits._
 
-class BaseReadHiveTest extends SimpleSpark with ExampleRunner{
+class BaseReadHiveTest extends SimpleSpark with Runner{
   override def run (args: Array[ String ]): Unit = {
     val arg = ArgumentsParser[BaseReadHiveArg](args)
 
