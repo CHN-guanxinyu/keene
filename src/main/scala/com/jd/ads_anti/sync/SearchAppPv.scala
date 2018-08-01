@@ -12,8 +12,8 @@ class SearchAppPv extends Runner {
 
     //input
     Map(
-      "log_mark"    ->  fetchGdmOnlineLogMark,
-      "online_log"  ->  fetchGdmM14WirelessOnlineLog
+      "log_mark"    ->  fetchGdmOnlineLogMark.repartition(arg.numRepartition),
+      "online_log"  ->  fetchGdmM14WirelessOnlineLog.repartition(arg.numRepartition)
     ).foreach{ case (table , df) => df.createOrReplaceTempView( table )}
 
     //result view
@@ -42,7 +42,7 @@ class SearchAppPv extends Runner {
       where dt='$date'
       and log_type1 = 'mapp.000001'
       and ext_columns['client'] != 'm'
-    """ go
+    """.go
 
   def fetchGdmM14WirelessOnlineLog(implicit date : String) : DataFrame=
     s"""
