@@ -8,7 +8,7 @@ import com.keene.core.implicits._
 object Main extends App {
   val arg = Parser[MainArgs](args)
 
-  s"com.keene.spark.examples.${arg.`class`}".as[Runner] run
+  s"com.jd.ads_anti.${arg.`class`}".as[Runner] run
     args ++ Seq(if( arg.man ) "--help" else "")
 }
 
