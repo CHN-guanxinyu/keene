@@ -45,7 +45,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     spark.udf.register("hasBehavior", hasBehavior )
 
 
-      //result view
+    //result
     """
       select
         log_mark.*,
@@ -80,16 +80,6 @@ class SearchAppPv extends Runner with SimpleSpark{
       and length(browser_uniq_id) > 0
     """.go
 
-  def joinDataHasBehavior(a : DataFrame, b : DataFrame): Unit ={
-    val except = sc.broadcast( b.as[String].map(_ -> 0).collect.toMap ).value
-    a.withColumn("has_behavior", lit(0) ).mapPartitions(_.map{ case record : Row =>
-      record.
-    })
-  }
-
-  def joinDataNonBehavior(a: DataFrame, b: DataFrame): Unit ={
-    val except = sc.broadcast( b.as[String].map(_ -> 0).collect.toMap ).value
-  }
 }
 
 class Args(
