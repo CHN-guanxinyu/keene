@@ -6,7 +6,7 @@ DATE='2018-07-29'
 
 NUM_EXECUTORS=400
 CORES=2
-MEM=20G
+MEM=10G
 REDUCERS=$((NUM_EXECUTORS * CORES * 3))
 
 run \
@@ -18,8 +18,5 @@ run \
 --conf spark.sql.codegen=true \
 --conf spark.sql.shuffle.partitions=$REDUCERS \
 ${JAR} \
---class sync.SearchAppPv \
+--class sync.SearchAppPvAssi \
 --date ${DATE} \
---result-table antidb.keen_search_app_pv_log \
---num-repartition $REDUCERS \
---temp-path "/user/jd_ad/ads_anti/guanxinyu/metadata/hive/keen_search_app_pv_log"
