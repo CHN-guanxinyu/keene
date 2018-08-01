@@ -25,16 +25,13 @@ class SearchAppPv extends Runner {
         log_mark
         left join online_log
         on log_mark.browser_uniq_id = online_log.browser_uniq_id
-    """.go.createOrReplaceTempView("result")
+    """.go.repartition(arg.numRepartition).
+      write.
+      format("orc").
+      mode("overwrite").
+      orc(arg.tempPath)
 
-    //save to result table on hive
-    s"""
-      insert overwrite table
-        ${arg.resultTable}
-      partition (dt = '$date')
-      select * from result
-    """.go
-
+    s"load data inpath '${arg.tempPath}' overwrite into table ${arg.resultTable} partition (dt='$date')" go
 
   }
 
@@ -59,14 +56,18 @@ class SearchAppPv extends Runner {
 }
 
 class Args(
+  var numRepartition : Int = 2000,
   var date : String = "",
-  var resultTable : String = ""
+  var resultTable : String = "",
+  var tempPath : String = ""
 ) extends Arguments {
   override def usage =
     """
       |Options:
       |
       |--date
+      |--num-repartition
+      |--temp-path        写结果表前首先存储到hdfs的路径
       |--result-table     结果表
     """.stripMargin
 }
