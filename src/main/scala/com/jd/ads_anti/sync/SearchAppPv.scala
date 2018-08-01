@@ -15,9 +15,6 @@ class SearchAppPv extends Runner with SimpleSpark{
     val arg = Parser[Args](args)
     implicit val date : String = arg.date
 
-
-
-
     //加载数据
     val dataframes @ List(logMark, onlineLog) =
       fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
@@ -47,10 +44,8 @@ class SearchAppPv extends Runner with SimpleSpark{
 
     val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
 
-
     def broadcastMap(df : DataFrame) =
       sc.broadcast( df.as[String].map(_ -> 0).collect.toMap ).value
-
 
     val hasBehavior =
       if( logMarkExceptOnlineLog.count < distinctedJoinKLogMark.count / 2 ){
@@ -63,7 +58,6 @@ class SearchAppPv extends Runner with SimpleSpark{
       }
 
     spark.udf.register("hasBehavior", hasBehavior )
-
 
     //result
     """
