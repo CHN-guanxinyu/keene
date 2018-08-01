@@ -27,7 +27,6 @@ class SearchAppPv extends Runner {
         on log_mark.browser_uniq_id = online_log.browser_uniq_id
     """.go.repartition(arg.numRepartition).
       write.
-      format("orc").
       mode("overwrite").
       orc(arg.tempPath)
 
