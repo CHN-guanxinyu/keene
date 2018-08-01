@@ -69,7 +69,7 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
           if( plan == null ) throw new IllegalArgumentException("cannot fix the type")
 
           try setter.invoke( resultObj, plan(v).asInstanceOf[Object] )
-          catch { case _ =>
+          catch { case _ : Throwable =>
             tryOrElse( plans next() )
           }
         }
