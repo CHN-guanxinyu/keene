@@ -3,29 +3,56 @@ package com.jd.ads_anti.sync
 import com.keene.core.Runner
 import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
-import org.apache.spark.sql.DataFrame
+import com.keene.spark.utils.SimpleSpark
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.functions._
 
-class SearchAppPv extends Runner {
+class SearchAppPv extends Runner with SimpleSpark{
   override def run (args: Array[ String ]): Unit = {
     val arg = Parser[Args](args)
     implicit val date : String = arg.date
 
     //input
-    Map(
-      "log_mark"    ->  fetchGdmOnlineLogMark.repartition(arg.numRepartition),
-      "online_log"  ->  fetchGdmM14WirelessOnlineLog.repartition(arg.numRepartition)
-    ).foreach{ case (table , df) => df.createOrReplaceTempView( table )}
+    val tables = "log_mark" :: "online_log" :: Nil
+    val dataframes @ List(logMark, onlineLog) =
+      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
 
-    //result view
+    val dfMapper = tables.zip( dataframes )
+
+    dfMapper.foreach{ case (table , df) =>
+      df.createOrReplaceTempView( table ) }
+
+    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go
+
+    val logMarkExceptOnlineLog = logMark.except( distinctedJoinKLogMark )
+
+
+
+    def broadcastMap(df : DataFrame) =
+      sc.broadcast( df.as[String].map(_ -> 0).collect.toMap ).value
+
+
+    val hasBehavior =
+      if( logMarkExceptOnlineLog.count < distinctedJoinKLogMark.count / 2 ){
+        val exceptBc = broadcastMap(logMarkExceptOnlineLog)
+        k: String => if( exceptBc.contains(k) ) 0 else 1
+      }
+      else{
+        val onlineLogBc = broadcastMap(onlineLog)
+        k: String => if( onlineLogBc.contains(k) ) 1 else 0
+      }
+
+    spark.udf.register("hasBehavior", hasBehavior )
+
+
+      //result view
     """
       select
         log_mark.*,
-        if( online_log.browser_uniq_id is null, 0, 1) as has_behavior
+        hasBehavior(browser_uniq_id) as has_behavior
       from
         log_mark
-        left join online_log
-        on log_mark.browser_uniq_id = online_log.browser_uniq_id
-    """.go.repartition(arg.numRepartition).
+    """.go.
       write.
       mode("overwrite").
       orc(arg.tempPath)
@@ -51,7 +78,18 @@ class SearchAppPv extends Runner {
       from gdm.gdm_m14_wireless_online_log
       where dt = '$date'
       and length(browser_uniq_id) > 0
-    """ go
+    """.go
+
+  def joinDataHasBehavior(a : DataFrame, b : DataFrame): Unit ={
+    val except = sc.broadcast( b.as[String].map(_ -> 0).collect.toMap ).value
+    a.withColumn("has_behavior", lit(0) ).mapPartitions(_.map{ case record : Row =>
+      record.
+    })
+  }
+
+  def joinDataNonBehavior(a: DataFrame, b: DataFrame): Unit ={
+    val except = sc.broadcast( b.as[String].map(_ -> 0).collect.toMap ).value
+  }
 }
 
 class Args(
