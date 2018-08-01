@@ -4,10 +4,10 @@ import com.keene.core.Runner
 import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
 import com.keene.spark.utils.SimpleSpark
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.apache.spark.sql.functions._
+import org.apache.spark.sql.DataFrame
 
 class SearchAppPv extends Runner with SimpleSpark{
+  import spark.implicits._
   override def run (args: Array[ String ]): Unit = {
     val arg = Parser[Args](args)
     implicit val date : String = arg.date
