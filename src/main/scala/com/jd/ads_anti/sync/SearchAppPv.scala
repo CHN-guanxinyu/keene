@@ -6,6 +6,8 @@ import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
 import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.DataFrame
 
+import scala.collection.immutable.HashSet
+
 class SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
@@ -46,7 +48,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
 
     def broadcastMap(df : DataFrame) =
-      df.as[String].map(_ -> 0).collect.toMap.bc
+      df.as[String].collect.to[HashSet].bc
 
     val hasBehavior =
       if( logMarkExceptOnlineLog.count < distinctedJoinKLogMark.count / 2 ){
@@ -72,7 +74,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     s"""
        |insert overwrite table ${arg.resultTable}
        |partition (dt = '$date')
-       |select * from reslut
+       |select * from result
      """.stripMargin.go
 /*
     """
