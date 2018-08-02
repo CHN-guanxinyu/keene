@@ -47,16 +47,16 @@ class SearchAppPv extends Runner with SimpleSpark{
 
     val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
 
-    def broadcastMap(df : DataFrame) =
+    def broadcastSet(df : DataFrame) =
       df.as[String].collect.to[HashSet].bc
 
     val hasBehavior =
       if( logMarkExceptOnlineLog.count < distinctedJoinKLogMark.count / 2 ){
-        val exceptBc = broadcastMap(logMarkExceptOnlineLog)
+        val exceptBc = broadcastSet(logMarkExceptOnlineLog)
         k: String => if( exceptBc.contains(k) ) 0 else 1
       }
       else{
-        val intersectBc = broadcastMap( distinctedJoinKLogMark.except(logMarkExceptOnlineLog) )
+        val intersectBc = broadcastSet( distinctedJoinKLogMark.except(logMarkExceptOnlineLog) )
         k: String => if( intersectBc.contains(k) ) 1 else 0
       }
 
