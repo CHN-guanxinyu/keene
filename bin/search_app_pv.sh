@@ -2,11 +2,11 @@
 
 source bin/ads_anti.sh
 JAR=$(ls target/scala*/*.jar)
-DATE='2018-07-29'
+DATE='2018-07-28'
 
-NUM_EXECUTORS=400
-CORES=2
-MEM=20G
+NUM_EXECUTORS=300
+CORES=4
+MEM=10G
 REDUCERS=$((NUM_EXECUTORS * CORES * 3))
 
 run \
@@ -14,7 +14,6 @@ run \
 --num-executors ${NUM_EXECUTORS} \
 --executor-cores ${CORES} \
 --executor-memory ${MEM} \
---conf spark.yarn.executor.memoryOverhead=10240 \
 --conf spark.sql.codegen=true \
 --conf spark.sql.shuffle.partitions=$REDUCERS \
 ${JAR} \
