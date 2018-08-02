@@ -53,8 +53,8 @@ class SearchAppPv extends Runner with SimpleSpark{
         k: String => if( exceptBc.contains(k) ) 0 else 1
       }
       else{
-        val onlineLogBc = broadcastMap(onlineLog)
-        k: String => if( onlineLogBc.contains(k) ) 1 else 0
+        val intersectBc = broadcastMap(distinctedJoinKLogMark.except(logMarkExceptOnlineLog))
+        k: String => if( intersectBc.contains(k) ) 1 else 0
       }
 
     spark.udf.register("hasBehavior", hasBehavior )
