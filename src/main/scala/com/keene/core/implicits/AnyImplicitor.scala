@@ -2,6 +2,8 @@ package com.keene.core.implicits
 
 import org.apache.spark.SparkContext
 
-case class AnyImplicitor[T](@transient t : T){
-  def bc(implicit sc : SparkContext) : T = sc broadcast[T] t value
+import scala.reflect.ClassTag
+
+case class AnyImplicitor[T](@transient t : T)(implicit tag : ClassTag[T]){
+  def bc(implicit sc : SparkContext) = sc.broadcast(t).value
 }
