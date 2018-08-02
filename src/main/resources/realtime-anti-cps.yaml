@@ -1,0 +1,52 @@
+jobs:
+- name: RealtimeClickLogFilterJob
+  input: com.jd.ad.anti.cps.extractor.RealtimeUnionClickKafka
+  filters:
+  - filter_type: RealtimeDnsFilter
+    # jda 用于标识同一用户，10s内联盟切换则作弊
+    policy_id: 301
+    rules:
+    - space: jda != ""
+      group:
+        group_key: jda
+      click_time_diff_range:
+        lower_seconds: 0
+        upper_seconds: 10
+      filter_space: true
+  output: com.jd.ad.anti.cps.dumper.RealtimeAntiClickLog
+- name: OrderJoinClickLogFilterJob
+  input: com.jd.ad.anti.cps.extractor.RealtimeOrderMessageKafka
+  filters:
+  # 查找点击是否已击中作弊
+  - filter_type: RealtimeRuleFilter
+    policy_id: 300
+    variables:
+      REGISTER_SITES: com.jd.ad.anti.cps.variable.RegisterSite
+      THIRDPARTY_LIST: com.jd.ad.anti.cps.variable.ThirdpartyUnion
+      WHITE_LIST: com.jd.ad.anti.cps.variable.NoReferWhiteList
+    rules:
+    # 过滤app点击,refer不匹配判作弊
+    - space: skip_flag == "false" and platform != "mobile" and (ad_traffic_type lt 0 or ad_traffic_type in [6, 80, 169]) and (refer == "refer" or refer == "norefer")
+      filter_space: not WHITE_LIST.contains called (union_id) and THIRDPARTY_LIST.contains called (union_id)
+    - space: skip_flag == "false" and platform != "mobile" and (ad_traffic_type lt 0 or ad_traffic_type in [6, 80, 169]) and refer != "refer" and refer != "norefer" and refer_host not in ["ads.union.jd.com", "u.x.jd.com", "gou.jd.com", "gou.m.jd.com", "ads-union.jd.com", "u-x.jd.com"]
+      filter_space: REGISTER_SITES.containKey called (union_id) and not REGISTER_SITES.contains called (union_id, refer_host)
+  - filter_type: RealtimeFraudClickFilter
+    policy_id: 301
+    rules:
+    - space: ad_traffic_type lt 0 or ad_traffic_type in [6, 80, 169]
+      filter_space: true # fake
+  - filter_type: RealtimeRuleFilter
+    policy_id: 307
+    variables:
+      UNION_BLACKLIST: com.jd.ad.anti.cps.variable.UnionBlacklist
+    rules:
+    # blacklist,联盟在blacklist中则作弊(特殊情况:sub_union_id in ['null','#allthesubsite'])
+    - space: ad_traffic_type lt 0 or ad_traffic_type in [6, 80, 169]
+      filter_space: UNION_BLACKLIST.contains called (union_id, sub_union_id) or UNION_BLACKLIST.contains called (union_id, null_sub_union_id) or UNION_BLACKLIST.contains called (union_id, illegal_sub_union_id)
+  - filter_type: RealtimeRuleFilter
+    policy_id: 308
+    rules:
+    # 超级返通过sendPay字段检查
+    - space: union_id eq 1000352685 and (ad_traffic_type lt 0 or ad_traffic_type in [6, 80, 169]) and platform != "mobile"
+      filter_space: chaojifan_flag != "033"
+  output: com.jd.ad.anti.cps.dumper.RealtimeAntiOrderDumper
