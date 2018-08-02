@@ -19,6 +19,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     val dataframes @ List(logMark, onlineLog) =
       fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
 
+
     //hive表别名,注册临时表
     //log_mark大表,TB级数据,千万条
     //online_log小表,GB级数据,上亿条
@@ -45,7 +46,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
 
     def broadcastMap(df : DataFrame) =
-      sc.broadcast( df.as[String].map(_ -> 0).collect.toMap ).value
+      df.as[String].map(_ -> 0).collect.toMap.bc
 
     val hasBehavior =
       if( logMarkExceptOnlineLog.count < distinctedJoinKLogMark.count / 2 ){
@@ -53,7 +54,7 @@ class SearchAppPv extends Runner with SimpleSpark{
         k: String => if( exceptBc.contains(k) ) 0 else 1
       }
       else{
-        val intersectBc = broadcastMap(distinctedJoinKLogMark.except(logMarkExceptOnlineLog))
+        val intersectBc = broadcastMap( distinctedJoinKLogMark.except(logMarkExceptOnlineLog) )
         k: String => if( intersectBc.contains(k) ) 1 else 0
       }
 
