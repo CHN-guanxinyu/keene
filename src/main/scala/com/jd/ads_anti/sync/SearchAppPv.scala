@@ -63,14 +63,13 @@ class SearchAppPv extends Runner with SimpleSpark{
     spark.udf.register("hasBehavior", hasBehavior )
 
     //result
-
     """
       select
         log_mark.*,
         hasBehavior(browser_uniq_id) as has_behavior
       from
         log_mark
-    """.go.
+    """.go.repartition(arg.numRepartition).
       write.
       mode("overwrite").
       orc(arg.tempPath)
