@@ -63,20 +63,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     spark.udf.register("hasBehavior", hasBehavior )
 
     //result
-    """
-      select
-        log_mark.*,
-        hasBehavior(browser_uniq_id) as has_behavior
-      from
-        log_mark
-    """.go.createOrReplaceTempView("result")
 
-    s"""
-       |insert overwrite table ${arg.resultTable}
-       |partition (dt = '$date')
-       |select * from result
-     """.stripMargin.go
-/*
     """
       select
         log_mark.*,
@@ -89,7 +76,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       orc(arg.tempPath)
 
     s"load data inpath '${arg.tempPath}' overwrite into table ${arg.resultTable} partition (dt='$date')" go
-*/
+
 
   }
 
