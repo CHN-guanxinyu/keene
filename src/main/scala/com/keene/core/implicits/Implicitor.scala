@@ -12,4 +12,5 @@ trait Implicitor {
   implicit def to(sql: String): StringImplicitor = StringImplicitor(sql)
   implicit def to(spark : SparkSession) : SparkSessionImplicitor = SparkSessionImplicitor(spark)
   implicit def to(df : DataFrame) : DataFrameImplicitor = DataFrameImplicitor(df)
+  implicit def to[T](t: T) : TraversableImplicitor[T] = TraversableImplicitor(t)
 }

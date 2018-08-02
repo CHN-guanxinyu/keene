@@ -7,17 +7,17 @@ import org.slf4j.LoggerFactory
 
 trait SimpleSpark extends BaseEnv {
   //core
-  final lazy val sc = Sc getOrCreate sparkConf
+  implicit final lazy val sc = Sc getOrCreate sparkConf
 
   //sql
-  final lazy val spark = {
+  implicit final lazy val spark = {
     val t = Sss.builder
     val builder = if (isWindows) t else t.enableHiveSupport
     builder config sparkConf getOrCreate
   }
 
   //streaming
-  lazy val ssc: Ssc = Ssc.getActiveOrCreate(() =>
+  implicit final lazy val ssc: Ssc = Ssc.getActiveOrCreate(() =>
     new Ssc(sparkConf, Seconds(second))
   )
 
