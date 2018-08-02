@@ -67,12 +67,27 @@ class SearchAppPv extends Runner with SimpleSpark{
         hasBehavior(browser_uniq_id) as has_behavior
       from
         log_mark
+    """.go.createOrReplaceTempView("result")
+
+    s"""
+       |insert overwrite table ${arg.resultTable}
+       |partition (dt = '$date')
+       |select * from reslut
+     """.stripMargin.go
+/*
+    """
+      select
+        log_mark.*,
+        hasBehavior(browser_uniq_id) as has_behavior
+      from
+        log_mark
     """.go.
       write.
       mode("overwrite").
       orc(arg.tempPath)
 
     s"load data inpath '${arg.tempPath}' overwrite into table ${arg.resultTable} partition (dt='$date')" go
+*/
 
   }
 
