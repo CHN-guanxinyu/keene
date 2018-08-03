@@ -104,7 +104,7 @@ class SearchAppPv extends Runner with SimpleSpark{
   def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = choose(e, u, e.count < u.count / 2 )
 
   def newChooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = {
-    val sampleOfU = u sample 10e-5 coalesce 1
+    val sampleOfU = u.sample(false,  10e-5 ) coalesce 1
     val representativeOfE = sampleOfU intersect e
     choose(e, u, representativeOfE.count < sampleOfU.count / 2)
   }
