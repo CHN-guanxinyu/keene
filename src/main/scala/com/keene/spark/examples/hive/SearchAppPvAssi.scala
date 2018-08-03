@@ -1,4 +1,4 @@
-package com.jd.ads_anti.sync
+package com.keene.spark.examples.hive
 
 import com.keene.core.Runner
 import com.keene.core.parsers.ArgumentsParser
