@@ -51,6 +51,8 @@ class SearchAppPv extends Runner with SimpleSpark{
       newChooseHasBehaviorFunction(logMarkExceptOnlineLog, distinctedJoinKLogMark)
     )
 
+    onlineLog.unpersist()
+
     //result
     """
       select
