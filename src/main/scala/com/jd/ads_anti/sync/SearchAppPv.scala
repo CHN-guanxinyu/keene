@@ -48,7 +48,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     val logMarkExceptOnlineLog = distinctedJoinKLogMark except onlineLog
 
     spark.udf register("hasBehavior",
-      newChooseHasBehaviorFunction(logMarkExceptOnlineLog, distinctedJoinKLogMark)
+      chooseHasBehaviorFunction(logMarkExceptOnlineLog, distinctedJoinKLogMark)
     )
 
     //result
@@ -103,11 +103,6 @@ class SearchAppPv extends Runner with SimpleSpark{
 
   def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = choose(e, u, e.count < u.count / 2 )
 
-  def newChooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = {
-    val sampleOfU = u.sample(false,  10e-5 )
-    val representativeOfE = sampleOfU intersect e
-    choose(e, u, representativeOfE.count < sampleOfU.count / 2)
-  }
 
 }
 
