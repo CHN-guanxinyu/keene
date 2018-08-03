@@ -64,6 +64,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       |from
       |  log_mark
     """.stripMargin.go.
+      repartition(arg.numRepartition).
       write.
       mode("overwrite").
       orc(arg.tempPath)
