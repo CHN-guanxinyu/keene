@@ -26,8 +26,8 @@ class SearchAppPv extends Runner with SimpleSpark{
     //log_mark大表,TB级数据,千万条
     //online_log小表,GB级数据,上亿条
     val tables = "log_mark" :: "online_log" :: Nil
-    tables.zip( dataframes ).foreach{ case (table , df) =>
-      df.createOrReplaceTempView( table )
+    tables zip dataframes foreach{ case (table , df) =>
+      df createOrReplaceTempView table
     }
 
     /**
@@ -43,39 +43,27 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 最后发现保存文件仍有轻微的数据倾斜,
       * 之后可以进一步优化
       */
-    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go
+    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark" go
 
-    val logMarkExceptOnlineLog = distinctedJoinKLogMark.except( onlineLog )
+    val logMarkExceptOnlineLog = distinctedJoinKLogMark except onlineLog
 
-    def broadcastSet(df : DataFrame) =
-      df.as[String].collect.to[HashSet].bc
-
-    val hasBehavior =
-      if( logMarkExceptOnlineLog.count < distinctedJoinKLogMark.count / 2 ){
-        val exceptBc = broadcastSet(logMarkExceptOnlineLog)
-        k: String => if( exceptBc.contains(k) ) 0 else 1
-      }
-      else{
-        val intersectBc = broadcastSet( distinctedJoinKLogMark.except(logMarkExceptOnlineLog) )
-        k: String => if( intersectBc.contains(k) ) 1 else 0
-      }
-
-    spark.udf.register("hasBehavior", hasBehavior )
+    spark.udf register("hasBehavior",
+      newChooseHasBehaviorFunction(logMarkExceptOnlineLog, distinctedJoinKLogMark)
+    )
 
     //result
-
     """
       select
         log_mark.*,
         hasBehavior(browser_uniq_id) as has_behavior
       from
         log_mark
-    """.go.
+    """.go.repartition(arg numRepartition).
       write.
       mode("overwrite").
-      orc(arg.tempPath)
+      orc(arg tempPath)
 
-    s"load data inpath '${arg.tempPath}' overwrite into table ${arg.resultTable} partition (dt='$date')" go
+    s"load data inpath '${arg tempPath}' overwrite into table ${arg resultTable} partition (dt='$date')" go
 
 
   }
@@ -88,7 +76,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       where dt='$date'
       and log_type1 = 'mapp.000001'
       and ext_columns['client'] != 'm'
-    """.go
+    """ go
 
   def fetchGdmM14WirelessOnlineLog(implicit date : String) : DataFrame=
     s"""
@@ -97,7 +85,29 @@ class SearchAppPv extends Runner with SimpleSpark{
       from gdm.gdm_m14_wireless_online_log
       where dt = '$date'
       and length(browser_uniq_id) > 0
-    """.go
+    """ go
+
+  def choose(e: DataFrame, u: DataFrame, plan1: Boolean)={
+    def broadcastSet(df : DataFrame) =
+      df.as[String].collect.to[HashSet] bc
+
+    if( plan1 ){
+      val exceptBc = broadcastSet(e)
+      k: String => if( exceptBc contains k ) 0 else 1
+    }
+    else{
+      val intersectBc = broadcastSet( u except e )
+      k: String => if( intersectBc contains k ) 1 else 0
+    }
+  }
+
+  def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = choose(e, u, e.count < u.count / 2 )
+
+  def newChooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = {
+    val sampleOfU = u.sample(false,  10e-5 )
+    val representativeOfE = sampleOfU intersect e
+    choose(e, u, representativeOfE.count < sampleOfU.count / 2)
+  }
 
 }
 
