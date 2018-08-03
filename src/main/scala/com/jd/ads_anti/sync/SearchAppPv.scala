@@ -44,7 +44,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 最后发现保存文件仍有轻微的数据倾斜,
       * 之后可以进一步优化
       */
-    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark" go
+    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go.coalesce(arg.numRepartition / 2)
 
     val logMarkExceptOnlineLog = distinctedJoinKLogMark except onlineLog
 
@@ -107,9 +107,11 @@ class SearchAppPv extends Runner with SimpleSpark{
   def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = choose(e, u, e.count < u.count / 2 )
 
   def newChooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = {
-    val sampleOfU = u.sample(false,  10e-5 )
+    val sampleOfU = u.sample(false,  10e-5 ).cache
     val representativeOfE = sampleOfU intersect e
-    choose(e, u, representativeOfE.count < sampleOfU.count / 2)
+    val plan1 = representativeOfE.count < sampleOfU.count / 2
+    sampleOfU.unpersist()
+    choose(e, u, plan1)
   }
 
 }
