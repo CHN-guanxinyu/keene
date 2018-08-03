@@ -7,6 +7,7 @@ import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.immutable.HashSet
+import scala.util.Random
 
 class SearchAppPv extends Runner with SimpleSpark{
 
@@ -43,12 +44,13 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 最后发现保存文件仍有轻微的数据倾斜,
       * 之后可以进一步优化
       */
-    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark" go
+    val distinctedJoinKLogMarkSet = "select distinct browser_uniq_id from log_mark".go.as[String].collect.to[HashSet]
+    val onlineLogSet = onlineLog.as[String].collect.to[HashSet]
 
-    val logMarkExceptOnlineLog = distinctedJoinKLogMark except onlineLog
+    val logMarkExceptOnlineLog : HashSet[String] = distinctedJoinKLogMarkSet -- onlineLogSet
 
     spark.udf register("hasBehavior",
-      choose(logMarkExceptOnlineLog, distinctedJoinKLogMark, true)
+      (k: String) => if(logMarkExceptOnlineLog contains k) 0 else 1
     )
 
     //result
@@ -62,8 +64,6 @@ class SearchAppPv extends Runner with SimpleSpark{
       write.
       mode("overwrite").
       orc(arg tempPath)
-
-    dataframes foreach(_.unpersist())
 
     s"load data inpath '${arg tempPath}' overwrite into table ${arg resultTable} partition (dt='$date')" go
 
@@ -89,7 +89,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       and length(browser_uniq_id) > 0
     """ go
 
-  def choose(e: DataFrame, u: DataFrame, plan1: Boolean)={
+  def choose(e: DataFrame, u: DataFrame, plan1: Boolean )={
     def broadcastSet(df : DataFrame) =
       df.as[String].collect.to[HashSet] bc
 
@@ -104,7 +104,6 @@ class SearchAppPv extends Runner with SimpleSpark{
   }
 
   def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = choose(e, u, e.count < u.count / 2 )
-
 
 }
 
