@@ -65,6 +65,8 @@ class SearchAppPv extends Runner with SimpleSpark{
       mode("overwrite").
       orc(arg tempPath)
 
+    fetchGdmOnlineLogMark.unpersist()
+
     s"load data inpath '${arg tempPath}' overwrite into table ${arg resultTable} partition (dt='$date')" go
 
 
