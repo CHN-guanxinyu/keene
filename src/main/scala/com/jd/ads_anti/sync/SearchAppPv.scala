@@ -12,7 +12,6 @@ class SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
 
-  sc setCheckpointDir "/user/jd_ad/ads_anti/guanxinyu/spark"
   override def run (args: Array[ String ]): Unit = {
 
     val arg = Parser[Args](args)
@@ -20,7 +19,7 @@ class SearchAppPv extends Runner with SimpleSpark{
 
     //加载数据
     val dataframes @ List(logMark, onlineLog) =
-      fetchGdmOnlineLogMark.checkpoint :: fetchGdmM14WirelessOnlineLog.checkpoint :: Nil
+      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
 
 
     //hive表别名,注册临时表
