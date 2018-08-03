@@ -19,7 +19,7 @@ class SearchAppPv extends Runner with SimpleSpark{
 
     //加载数据
     val dataframes @ List(logMark, onlineLog) =
-      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
+      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog :: Nil
 
 
     //hive表别名,注册临时表
@@ -43,15 +43,15 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 最后发现保存文件仍有轻微的数据倾斜,
       * 之后可以进一步优化
       */
-    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark" go
+    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go
 
-    val logMarkExceptOnlineLog = distinctedJoinKLogMark except onlineLog
+    val logMarkExceptOnlineLog = distinctedJoinKLogMark.except(onlineLog) cache
 
     spark.udf register("hasBehavior",
       chooseHasBehaviorFunction(logMarkExceptOnlineLog, distinctedJoinKLogMark)
     )
 
-    onlineLog.unpersist()
+    logMarkExceptOnlineLog.unpersist()
 
     //result
     """
@@ -103,7 +103,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     }
   }
 
-  def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame)= choose(e, u, e.count < u.count / 2 )
+  def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame)= choose(e, u, u.count / 2 > e.count )
 
 
 }
