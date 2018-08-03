@@ -12,6 +12,7 @@ class SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
 
+  sc setCheckpointDir "/user/jd_ad/ads_anti/guanxinyu/spark"
   override def run (args: Array[ String ]): Unit = {
 
     val arg = Parser[Args](args)
