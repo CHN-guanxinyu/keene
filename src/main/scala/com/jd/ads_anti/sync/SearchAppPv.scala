@@ -19,7 +19,7 @@ class SearchAppPv extends Runner with SimpleSpark{
 
     //加载数据
     val dataframes @ List(logMark, onlineLog) =
-      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog.cache :: Nil
+      fetchGdmOnlineLogMark.checkpoint :: fetchGdmM14WirelessOnlineLog.checkpoint :: Nil
 
 
     //hive表别名,注册临时表
