@@ -51,6 +51,8 @@ class SearchAppPv extends Runner with SimpleSpark{
       chooseHasBehaviorFunction(logMarkExceptOnlineLog, distinctedJoinKLogMark)
     )
 
+    onlineLog.unpersist()
+
     //result
     """
       select
@@ -101,7 +103,7 @@ class SearchAppPv extends Runner with SimpleSpark{
     }
   }
 
-  def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame): String => Int = choose(e, u, e.count < u.count / 2 )
+  def chooseHasBehaviorFunction(e: DataFrame, u: DataFrame)= choose(e, u, e.count < u.count / 2 )
 
 
 }
