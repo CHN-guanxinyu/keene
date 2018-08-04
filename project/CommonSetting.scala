@@ -11,6 +11,8 @@ object CommonSetting extends AutoPlugin {
     parallelExecution in Test := false,
 
     fork in Test := true,
-    fork in run := true
+    fork in run := true,
+
+    libraryDependencies ++= Dependencies.core
   )
 }
