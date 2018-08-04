@@ -13,12 +13,7 @@ object Dependencies {
   )
 }
 
-
-
-
 object Version{
-
-
   val commons_codec = "1.10"
 
   //scala
@@ -38,7 +33,6 @@ object Version{
   val hbase = "1.0.2"
   val hbase_spark_connr = hbase
 
-
   val lombok = "1.16.20"
 
   val log4j = "2.11.0"
@@ -50,13 +44,6 @@ object Version{
     val jdk = "1.8"
   }
 }
-
-
-
-
-
-
-
 
 object Lib{
 
@@ -76,8 +63,6 @@ object Lib{
     val databind      = "com.fasterxml.jackson.core"  % "jackson-databind"            % Version.jackson
     val mudule_scala  = "com.fasterxml.jackson.module"% "jackson-module-scala_2.11"   % Version.jackson
   }
-
-
 
   object spark{
     private def foo( md : String ) = "org.apache.spark" %% s"spark-$md" % Version.spark 
@@ -132,6 +117,4 @@ object Lib{
   val kafka = "org.apache.kafka" %% "kafka" % Version.kafka excludeAll ExclusionRule("com.fasterxml.jackson.core")
 
 //  val scalajs_dom =
-
-
 }
