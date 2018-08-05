@@ -11,7 +11,7 @@ trait Main extends App{
     args ++ Seq(if( arg.man ) "--help" else "")
 }
 
-private class MainArg(
+private[core] class MainArg(
   var `class` : String = "",
   var man : Boolean = false
 ) extends Arguments {
