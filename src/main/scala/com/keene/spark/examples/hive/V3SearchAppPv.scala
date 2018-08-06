@@ -20,19 +20,19 @@ class V3SearchAppPv extends Runner with SimpleSpark{
 
     var counter = 0
 
-    def doOnSuccess: PartialFunction[Unit, _] = { case _ =>
-      counter += 1
-      if(counter == 2) continue
-    }
+    def doOnSuccess: PartialFunction[Unit, _] =
+    { case _ => counter += 1}
     //加载数据
     //hive表别名,注册临时表
     //log_mark大表,TB级数据,千万条
     //online_log小表,GB级数据,上亿条
     Future( fetchGdmOnlineLogMarkAs("log_mark") ) onSuccess doOnSuccess
     Future( fetchGdmM14WirelessOnlineLogAs("online_log") ) onSuccess doOnSuccess
-
-
-
+    while( counter < 2 ) {
+      info(s"counter:${counter},wait......")
+      Thread sleep 1000
+    }
+    continue
   }
 
   def continue(implicit arg : Args): Unit ={
@@ -86,16 +86,7 @@ class V3SearchAppPv extends Runner with SimpleSpark{
   override def run (args: Array[ String ]): Unit = {
 
     implicit val arg = Parser[Args](args)
-
-
-
-
-    init(arg)
-
-
-
-
-
+    init
   }
 
   def fetchDF(alias : String) : DataFrame = s"select * from ${alias}".go
