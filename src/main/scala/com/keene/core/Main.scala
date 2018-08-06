@@ -3,10 +3,10 @@ package com.keene.core
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.core.implicits._
 
-trait Main extends App{
+object Main extends App{
   def relativePackageName : String = getClass.getPackage.getName
 
-  val arg = ArgumentsParser[MainArg](args)
+  def arg  = ArgumentsParser[MainArg](args)
   s"$relativePackageName.${arg.`class`}".as[Runner] run
     args ++ Seq(if( arg.man ) "--help" else "")
 }
