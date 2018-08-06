@@ -24,7 +24,10 @@ class V3SearchAppPv extends Runner with SimpleSpark{
       counter += 1
       if(counter == 2) continue
     }
-
+    //加载数据
+    //hive表别名,注册临时表
+    //log_mark大表,TB级数据,千万条
+    //online_log小表,GB级数据,上亿条
     Future( fetchGdmOnlineLogMarkAs("log_mark") ) onSuccess doOnSuccess
     Future( fetchGdmM14WirelessOnlineLogAs("online_log") ) onSuccess doOnSuccess
 
@@ -85,10 +88,7 @@ class V3SearchAppPv extends Runner with SimpleSpark{
     implicit val arg = Parser[Args](args)
 
 
-    //加载数据
-    //hive表别名,注册临时表
-    //log_mark大表,TB级数据,千万条
-    //online_log小表,GB级数据,上亿条
+
 
     init(arg)
 
