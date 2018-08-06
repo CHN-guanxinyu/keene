@@ -36,6 +36,7 @@ class V3SearchAppPv extends Runner with SimpleSpark{
       latch.countDown
     }).start
 
+    warn("please wait....")
     latch.await
     warn("success!")
 
