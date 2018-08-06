@@ -19,5 +19,11 @@ case class StringImplicitor(@transient str : String) extends SimpleSpark{
     * @return
     */
   def go: DataFrame = spark sql str
+
+
+  def info = logger info str
+  def debug = logger debug str
+  def warn = logger warn str
+  def error = logger error str
 }
 

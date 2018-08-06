@@ -23,8 +23,5 @@ trait SimpleSpark extends BaseEnv {
 
   lazy val logger = LoggerFactory getLogger "Console"
 
-  def info = logger info( _: String)
-  def debug = logger debug( _: String)
-  def warn = logger warn( _: String)
-  def error = logger error ( _: String)
+
 }
