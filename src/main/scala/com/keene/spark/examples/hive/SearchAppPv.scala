@@ -18,17 +18,12 @@ class SearchAppPv extends Runner with SimpleSpark{
     implicit val date : String = arg date
 
     //加载数据
-    val dataframes @ List(logMark, onlineLog) =
-      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog :: Nil
-
-
     //hive表别名,注册临时表
     //log_mark,TB级数据,千万条
     //online_log,GB级数据,上亿条
-    val tables = "log_mark" :: "online_log" :: Nil
-    tables zip dataframes foreach{ case (table , df) =>
-      df createOrReplaceTempView table
-    }
+    fetchGdmOnlineLogMarkAs("log_mark")
+    fetchGdmM14WirelessOnlineLogAs("online_log")
+
 
     /**
       * 核心逻辑
@@ -43,16 +38,13 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 最后发现保存文件仍有轻微的数据倾斜,
       * 之后可以进一步优化
       */
-    val distinctedJoinKLogMark = "select distinct browser_uniq_id from log_mark".go cache
+    val u = "select distinct browser_uniq_id from log_mark".go cache
 
-    val logMarkExceptOnlineLog = distinctedJoinKLogMark except onlineLog cache
+    val e = u except df("online_log") cache
 
-    val hasBehavior = chooseBehaviorFunction(
-      logMarkExceptOnlineLog,
-      distinctedJoinKLogMark
-    )
+    val hasBehavior = chooseBehaviorFunction(e, u)
 
-    Array(distinctedJoinKLogMark, logMarkExceptOnlineLog) foreach( _ unpersist )
+    Array(e, u) foreach( _ unpersist )
 
     spark.udf register("hasBehavior", hasBehavior )
 
@@ -69,7 +61,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       mode("overwrite").
       orc(arg.tempPath)
 
-    logMark.unpersist
+    "uncache table log_mark" go
 
     s"""
        |load data inpath '${arg.tempPath}'
@@ -79,24 +71,30 @@ class SearchAppPv extends Runner with SimpleSpark{
 
   }
 
-  def fetchGdmOnlineLogMark(implicit date : String) : DataFrame =
-    s"""
+  def df(alias : String) = s"select * from $alias".go
+
+  def fetchGdmOnlineLogMarkAs(alias : String)(implicit date : String): Unit = {
+    val table = s"""
        |select
        |  error_cd,error_desc,error_original_data,request_tm,user_visit_ip,ct_url,session_id,web_site_id,use_java_flag,screen_colour_depth,screen_resolution,browser_code_mode,browser_lang_type,page_title,url_domain,flash_ver,os,browser_type,browser_ver,first_session_create_tm,prev_visit_create_tm,visit_create_tm,visit_times,sequence_num,utm_source,utm_campaign,utm_medium,utm_term,log_type1,log_type2,browser_uniq_id,user_log_acct,referer_url,request_par,referer_par,dry_url,item_first_cate_id,item_second_cate_id,item_third_cate_id,sku_id,sale_ord_id,referer_dry_url,referer_item_first_cate_id,referer_item_second_cate_id,referer_item_third_cate_id,referer_sku_id,referer_ord_id,referer_kwd,referer_page_num,request_time_sec,user_visit_ip_id,ord_content,marked_skus,jshop_app_case_id,item_qtty,real_view_flag,ext_columns,load_sec,kwd,page_num,from_position,from_content_id,impressions,first_request_flag,last_request_flag,session_rt,stm_rt,referer_sequence_num,mtm_rt,url_request_seq_num,src_url,src_dry_url,src_kwd,src_page_num,landing_url,stm_max_pv_qtty,mtm_max_pv_qtty,later_orders,from_position_seq_num,from_sys,parsed_url_par,ct_url_anchor,parsed_referer_par,shop_id,referer_shop_id,ct_utm_union_id,ct_utm_sub_union_id,ct_utm_src,ct_utm_medium,ct_utm_compaign,ct_utm_term,from_content_type,from_ad_par,list_page_item_filter,id_list,referer_id_list,src_first_domain,src_second_domain,common_list,chan_first_cate_cd,chan_second_cate_cd,chan_third_cate_cd,chan_fourth_cate_cd,pinid,page_extention,user_site_addr,user_site_cy_name,user_site_province_name,user_site_city_name,all_domain_uniq_id,all_domain_visit_times,all_domain_session_id,all_domain_sequence_num,cdt_flag
        |from gdm.gdm_online_log_mark
        |where dt='$date'
        |and log_type1 = 'mapp.000001'
        |and ext_columns['client'] != 'm'
-    """.stripMargin go
+    """.stripMargin.go cache
 
-  def fetchGdmM14WirelessOnlineLog(implicit date : String) : DataFrame=
+    table createOrReplaceTempView alias
+  }
+
+
+  def fetchGdmM14WirelessOnlineLogAs(alias : String)(implicit date : String) =
     s"""
        |select
        |  distinct browser_uniq_id
        |from gdm.gdm_m14_wireless_online_log
        |where dt = '$date'
        |and length(browser_uniq_id) > 0
-    """.stripMargin go
+    """.stripMargin.go createOrReplaceTempView alias
 
   def chooseBehaviorFunction(e : DataFrame, u : DataFrame) ={
     def broadcastSet(df : DataFrame) =
