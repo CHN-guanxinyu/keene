@@ -12,7 +12,7 @@ import org.apache.spark.sql.DataFrame
 
 import scala.collection.immutable.HashSet
 
-class SearchAppPv  extends Runner {
+class V2SearchAppPv  extends Runner {
   override def run (args: Array[ String ]): Unit = {
     /**
       * 核心逻辑
