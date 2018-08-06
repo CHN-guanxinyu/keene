@@ -47,7 +47,7 @@ class MainActor extends Actor with SimpleSpark {
 
   override def receive = {
 
-    case (Start, args : V2Args) =>
+    case (Start, args : Args) =>
       arg = args
       date = arg date
 
@@ -87,7 +87,7 @@ class MainActor extends Actor with SimpleSpark {
   }
 
 
-  var arg : V2Args = _
+  var arg : Args = _
   implicit var date : String = _
 
   lazy val counterResult : util.Map[String, Int] = new ConcurrentHashMap
@@ -173,20 +173,3 @@ class MainActor extends Actor with SimpleSpark {
 }
 
 
-
-class V2Args(
-  var numRepartition : Int = 2000,
-  var date : String = "",
-  var resultTable : String = "",
-  var tempPath : String = ""
-) extends Arguments {
-  override def usage =
-    """
-      |Options:
-      |
-      |--date
-      |--num-repartition
-      |--temp-path        写结果表前首先存储到hdfs的路径
-      |--result-table     结果表
-    """.stripMargin
-}

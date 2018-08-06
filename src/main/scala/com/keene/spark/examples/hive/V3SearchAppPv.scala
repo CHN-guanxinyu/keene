@@ -1,5 +1,7 @@
 package com.keene.spark.examples.hive
 
+import java.util.concurrent.CountDownLatch
+
 import com.keene.core.Runner
 import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
@@ -8,7 +10,7 @@ import org.apache.spark.sql.DataFrame
 
 import scala.collection.immutable.HashSet
 
-class SearchAppPv extends Runner with SimpleSpark{
+class V3SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
 
@@ -102,7 +104,20 @@ class SearchAppPv extends Runner with SimpleSpark{
     def broadcastSet(df : DataFrame) =
       df.as[String].collect.to[HashSet] bc
 
-    if( e.count < u.count / 2 ){
+    var (ec, uc) = (0l, 0l)
+    val latch = new CountDownLatch(2)
+    new Thread(() => {
+      ec = e.count
+      latch.countDown
+    }).start
+
+    new Thread(() => {
+      uc = u.count
+      latch.countDown
+    }).start
+
+    latch.await
+    if( ec < uc / 2 ){
       val exceptBc = broadcastSet(e)
       k: String => if( exceptBc contains k ) 0 else 1
     }
@@ -112,21 +127,4 @@ class SearchAppPv extends Runner with SimpleSpark{
     }
   }
 
-}
-
-class Args(
-  var numRepartition : Int = 2000,
-  var date : String = "",
-  var resultTable : String = "",
-  var tempPath : String = ""
-) extends Arguments {
-  override def usage =
-    """
-      |Options:
-      |
-      |--date
-      |--num-repartition
-      |--temp-path        写结果表前首先存储到hdfs的路径
-      |--result-table     结果表
-    """.stripMargin
 }
