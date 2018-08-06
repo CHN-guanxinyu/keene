@@ -25,18 +25,19 @@ class V3SearchAppPv extends Runner with SimpleSpark{
     //online_log小表,GB级数据,上亿条
 
     val latch = new CountDownLatch(2)
+    warn("start fetch gdm.gdm_online_log_mark as log_mark")
     new Thread(() => {
       fetchGdmOnlineLogMarkAs("log_mark")
       latch.countDown
     }).start
-
+    warn("start fetch gdm.gdm_m14_wireless_online_log as online_log")
     new Thread(() => {
       fetchGdmM14WirelessOnlineLogAs("online_log")
       latch.countDown
     }).start
 
     latch.await
-
+    warn("success!")
 
 
     /**
