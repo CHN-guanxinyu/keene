@@ -20,17 +20,25 @@ class V3SearchAppPv extends Runner with SimpleSpark{
     implicit val date : String = arg date
 
     //加载数据
-    val dataframes @ List(logMark, onlineLog) =
-      fetchGdmOnlineLogMark.cache :: fetchGdmM14WirelessOnlineLog :: Nil
+    var (logMark : DataFrame, onlineLog : DataFrame) = (_, _)
+    val latch = new CountDownLatch(2)
+    new Thread(() => {
+      logMark = fetchGdmOnlineLogMark.cache
+      latch.countDown
+    }).start
 
+    new Thread(() => {
+      onlineLog = fetchGdmM14WirelessOnlineLog
+      latch.countDown
+    }).start
+
+    latch.await
 
     //hive表别名,注册临时表
     //log_mark大表,TB级数据,千万条
     //online_log小表,GB级数据,上亿条
-    val tables = "log_mark" :: "online_log" :: Nil
-    tables zip dataframes foreach{ case (table , df) =>
-      df createOrReplaceTempView table
-    }
+    logMark createOrReplaceTempView "log_mark"
+    onlineLog createOrReplaceTempView "online_log"
 
     /**
       * 核心逻辑
