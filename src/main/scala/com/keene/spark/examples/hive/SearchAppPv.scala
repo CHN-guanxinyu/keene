@@ -30,7 +30,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       sql.go createOrReplaceTempView alias
     }
     "输入表读取完毕,缓存log_mark.............".info
-    "cache table log_mark"
+    "cache table log_mark" go
     "缓存完毕.............".info
     /**
       * 核心逻辑
