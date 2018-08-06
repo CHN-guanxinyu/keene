@@ -23,8 +23,8 @@ class SearchAppPv extends Runner with SimpleSpark{
 
 
     //hive表别名,注册临时表
-    //log_mark大表,TB级数据,千万条
-    //online_log小表,GB级数据,上亿条
+    //log_mark,TB级数据,千万条
+    //online_log,GB级数据,上亿条
     val tables = "log_mark" :: "online_log" :: Nil
     tables zip dataframes foreach{ case (table , df) =>
       df createOrReplaceTempView table

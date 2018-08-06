@@ -4,10 +4,6 @@ import com.keene.core.Runner
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.spark.utils.SimpleSpark
 
-object Test extends SimpleSpark with App {
-  val a = Set(1)
-  a & a
-}
 class WordCount extends Runner with SimpleSpark{
   override def run (args: Array[ String ]): Unit = {
     val argv = ArgumentsParser[WordCountArg](args)
