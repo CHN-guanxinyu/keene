@@ -7,40 +7,32 @@ import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
 import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.DataFrame
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.immutable.HashSet
+import scala.concurrent.Future
 
 class V3SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
 
-  override def run (args: Array[ String ]): Unit = {
-
-    val arg = Parser[Args](args)
+  def init(implicit arg : Args) ={
     implicit val date : String = arg date
 
-    //加载数据
-    //hive表别名,注册临时表
-    //log_mark大表,TB级数据,千万条
-    //online_log小表,GB级数据,上亿条
+    var counter = 0
 
-    val latch = new CountDownLatch(2)
-    warn("start fetch gdm.gdm_online_log_mark as log_mark")
-    new Thread(() => {
-      fetchGdmOnlineLogMarkAs("log_mark")
-      latch.countDown
-    }).start
-    warn("start fetch gdm.gdm_m14_wireless_online_log as online_log")
-    new Thread(() => {
-      fetchGdmM14WirelessOnlineLogAs("online_log")
-      latch.countDown
-    }).start
+    def doOnSuccess: PartialFunction[Unit, _] = { case _ =>
+      counter += 1
+      if(counter == 2) continue
+    }
 
-    warn("please wait....")
-    latch.await
-    warn("success!")
+    Future( fetchGdmOnlineLogMarkAs("log_mark") ) onSuccess doOnSuccess
+    Future( fetchGdmM14WirelessOnlineLogAs("online_log") ) onSuccess doOnSuccess
 
 
+
+  }
+
+  def continue(implicit arg : Args): Unit ={
     /**
       * 核心逻辑
       * 1.大表joinKey去重后与小表做差得到差集`E`
@@ -85,8 +77,24 @@ class V3SearchAppPv extends Runner with SimpleSpark{
     s"""
        |load data inpath '${arg.tempPath}'
        |overwrite into table ${arg.resultTable}
-       |partition (dt='$date')
+       |partition (dt='${arg.date}')
     """.stripMargin go
+  }
+  override def run (args: Array[ String ]): Unit = {
+
+    implicit val arg = Parser[Args](args)
+
+
+    //加载数据
+    //hive表别名,注册临时表
+    //log_mark大表,TB级数据,千万条
+    //online_log小表,GB级数据,上亿条
+
+    init(arg)
+
+
+
+
 
   }
 
