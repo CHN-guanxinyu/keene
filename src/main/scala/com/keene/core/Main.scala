@@ -4,10 +4,8 @@ import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.core.implicits._
 
 object Main extends App{
-  def relativePackageName : String = getClass.getPackage.getName
-
   def arg  = ArgumentsParser[MainArg](args)
-  s"$relativePackageName.${arg.`class`}".as[Runner] run
+  s"${arg.`class`}".as[Runner] run
     args ++ Seq(if( arg.man ) "--help" else "")
 }
 
