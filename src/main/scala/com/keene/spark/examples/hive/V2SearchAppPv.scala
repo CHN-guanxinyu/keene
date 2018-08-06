@@ -48,6 +48,7 @@ class MainActor extends Actor with SimpleSpark {
 
     case (Start, args : Array[String]) =>
 
+      error(args.mkString("\t"))
       val arg = Parser[Args](args)
       date = arg date
 
