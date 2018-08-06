@@ -22,16 +22,15 @@ class SearchAppPv extends Runner with SimpleSpark{
     //hive表别名,注册临时表
     //log_mark,TB级数据,千万条
     //online_log,GB级数据,上亿条
-    "开始读取输入表.............".info
     Map(
       "log_mark" -> sql_gdmOnlineLogMark,
       "online_log" -> sql_gdmM14WirelessOnlineLog
     ).par.foreach{ case (alias, sql) =>
       sql.go createOrReplaceTempView alias
     }
-    "输入表读取完毕,缓存log_mark.............".info
+
     "cache table log_mark" go
-    "缓存完毕.............".info
+
     /**
       * 核心逻辑
       * 1.大表joinKey去重后与小表做差得到差集`E`
@@ -45,21 +44,22 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 最后发现保存文件仍有轻微的数据倾斜,
       * 之后可以进一步优化
       */
-    "计算u、e.............".info
     val u = "select distinct browser_uniq_id from log_mark".go cache
     val e = u except df("online_log") cache
 
-    "根据e、u数据量选取hasBehavior方法..................".info
     val hasBehavior = chooseBehaviorFunction(e, u)
 
-    "消除缓存".info
     Array(e, u) foreach( _ unpersist )
 
     spark.udf register("hasBehavior", hasBehavior )
 
-    "写入临时目录".info
     //result
-    """
+    s"""
+      |insert overwrite table ${arg.resultTable}
+      |partition(dt='$date')
+      |select log_mark.*, hasBehavior(browser_uniq_id) has_behavior from log_mark
+    """.stripMargin go
+   /* """
       |select
       |  log_mark.*,
       |  hasBehavior(browser_uniq_id) as has_behavior
@@ -71,7 +71,6 @@ class SearchAppPv extends Runner with SimpleSpark{
       mode("overwrite").
       orc(arg.tempPath)
 
-    "擦除log_mark".info
     "uncache table log_mark" go
 
     "load data".info
@@ -79,7 +78,7 @@ class SearchAppPv extends Runner with SimpleSpark{
        |load data inpath '${arg.tempPath}'
        |overwrite into table ${arg.resultTable}
        |partition (dt='$date')
-    """.stripMargin go
+    """.stripMargin go*/
 
   }
 
