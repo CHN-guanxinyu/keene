@@ -29,7 +29,7 @@ class V3SearchAppPv extends Runner with SimpleSpark{
     Future( fetchGdmOnlineLogMarkAs("log_mark") ) onSuccess doOnSuccess
     Future( fetchGdmM14WirelessOnlineLogAs("online_log") ) onSuccess doOnSuccess
     while( counter < 2 ) {
-      info(s"counter:${counter},wait......")
+      s"counter:${counter},wait......".info
       Thread sleep 1000
     }
     continue
