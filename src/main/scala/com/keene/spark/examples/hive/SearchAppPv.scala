@@ -26,7 +26,7 @@ class SearchAppPv extends Runner with SimpleSpark{
       "log_mark" -> sql_gdmOnlineLogMark,
       "online_log" -> sql_gdmM14WirelessOnlineLog
     ).par.foreach{ case (alias, sql) =>
-      sql.go createOrReplaceTempView alias
+      sql.go.repartition(arg.numRepartition) createOrReplaceTempView alias
     }
 
     "cache table log_mark" go
