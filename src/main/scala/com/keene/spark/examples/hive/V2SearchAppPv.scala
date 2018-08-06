@@ -174,7 +174,7 @@ class MainActor extends Actor with SimpleSpark {
 
 
 
-class Args(
+class V2Args(
   var numRepartition : Int = 2000,
   var date : String = "",
   var resultTable : String = "",
