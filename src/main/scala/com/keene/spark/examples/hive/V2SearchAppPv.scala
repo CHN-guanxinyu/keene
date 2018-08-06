@@ -24,9 +24,10 @@ class V2SearchAppPv  extends Runner {
       *   (2)不在,同理,has_behavior=1
       * 5.通过存入临时目录,再执行load data读入hive表代替直接存hive表
       */
+    val arg = Parser[Args](args)
     val as = ActorSystem("sync-search-app-pv")
     val main = as.actorOf(Props[MainActor])
-    main ! (Start, args)
+    main ! (Start, arg)
   }
 }
 
@@ -46,10 +47,8 @@ class MainActor extends Actor with SimpleSpark {
 
   override def receive = {
 
-    case (Start, args : Array[String]) =>
-
-      error(args.mkString("\t"))
-      val arg = Parser[Args](args)
+    case (Start, args : V2Args) =>
+      arg = args
       date = arg date
 
       //hive表别名,注册临时表
@@ -88,7 +87,7 @@ class MainActor extends Actor with SimpleSpark {
   }
 
 
-  var arg : Args = _
+  var arg : V2Args = _
   implicit var date : String = _
 
   lazy val counterResult : util.Map[String, Int] = new ConcurrentHashMap
