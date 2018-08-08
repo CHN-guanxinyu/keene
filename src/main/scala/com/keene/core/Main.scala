@@ -3,7 +3,7 @@ package com.keene.core
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.core.implicits._
 
-object Main extends App{
+object Main extends App {
   def arg  = ArgumentsParser[MainArg](args)
   s"${arg.`class`}".as[Runner] run
     args ++ Seq(if( arg.man ) "--help" else "")
