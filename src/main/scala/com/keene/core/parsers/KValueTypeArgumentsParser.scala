@@ -6,13 +6,6 @@ import scala.reflect.ClassTag
 
 /**
   * 支持键值对形式的参数解析
-  * Demo:
-  *
-  * KValueTypeArgumentsParser(args, classOf[MyArgs]/MyArgs.getClass ,
-  *   """
-  *   |Usage : xxx [--int-arg xxx] ....
-  *   """.stripMargin
-  * )
   *
   * Attention : 下面参数中`var`与默认值为必填
   * 支持以下几种类型
