@@ -22,8 +22,6 @@ class SearchAppPv extends Runner with SimpleSpark{
     //online_log,GB级数据,上亿条
     registerInputTable
 
-    "cache table log_mark" go
-
     /**
       * 核心逻辑
       * 1.大表joinKey去重后与小表做差得到差集`E`
@@ -50,10 +48,10 @@ class SearchAppPv extends Runner with SimpleSpark{
 
   def registerInputTable(implicit arg: Args) =
     Map(
-      "log_mark" -> sql_gdmOnlineLogMark,
-      "online_log" -> sql_gdmM14WirelessOnlineLog
-    ).par.foreach{ case (alias, sql) =>
-      sql.go createOrReplaceTempView alias
+      "log_mark" -> sql_gdmOnlineLogMark.go.cache,
+      "online_log" -> sql_gdmM14WirelessOnlineLog.go
+    ).par.foreach{ case (alias, df) =>
+      df createOrReplaceTempView alias
     }
 
   def sql_gdmOnlineLogMark(implicit arg: Args): String =
