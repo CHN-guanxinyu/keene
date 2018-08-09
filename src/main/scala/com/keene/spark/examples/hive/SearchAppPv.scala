@@ -7,7 +7,6 @@ import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.immutable.HashSet
-import scala.collection.parallel.immutable.ParSeq
 
 class SearchAppPv extends Runner with SimpleSpark{
 
@@ -36,14 +35,11 @@ class SearchAppPv extends Runner with SimpleSpark{
       * 5.通过存入临时目录,再执行load data读入hive表代替直接存hive表
       *
       */
-    val u = "select distinct browser_uniq_id from log_mark".go cache
-    val e = u except df("online_log") cache
+    val distinctJoinKeys = "select distinct browser_uniq_id from log_mark".go cache
 
-    val hasBehavior = chooseBehaviorFunction(e, u)
+    chooseAndRegisterBehaviorFunction(distinctJoinKeys, df("online_log"))
 
-    Seq(e, u) foreach( _ unpersist )
-
-    spark.udf register("hasBehavior", hasBehavior )
+    distinctJoinKeys.unpersist
 
     //result
     saveResult
@@ -78,19 +74,27 @@ class SearchAppPv extends Runner with SimpleSpark{
        |where dt = '${arg.date}'
        |and length(browser_uniq_id) > 0
     """.stripMargin
+  def broadcastSet(df : DataFrame) =
+    df.as[String].collect.to[HashSet] bc
 
-  def chooseBehaviorFunction(e : DataFrame, u : DataFrame) ={
-    def broadcastSet(df : DataFrame) =
-      df.as[String].collect.to[HashSet] bc
+  def chooseAndRegisterBehaviorFunction(left : DataFrame, right : DataFrame) ={
+    val joinKeys = left.intersect( right ).cache
+    val nonJoinKeys = left.except( right ).cache
 
-    if( e.count < u.count / 2 ){
-      val exceptBc = broadcastSet(e)
-      k: String => if( exceptBc contains k ) 0 else 1
-    }
-    else{
-      val intersectBc = broadcastSet( u except e )
-      k: String => if( intersectBc contains k ) 1 else 0
-    }
+    val (joinKeysCount, nonJoinKeysCount) = (joinKeys.count, nonJoinKeys.count)
+
+    //选择小集合广播
+    val useJoinKeys = joinKeysCount < nonJoinKeysCount
+    val betterBc = broadcastSet( if( useJoinKeys ) joinKeys else nonJoinKeys )
+
+    Seq(joinKeys, nonJoinKeys).map(_.unpersist)
+
+    //用joinKey去做contains，有则能join上，填充1，反之0
+    //用非joinKey去做contains，有则说明无法join，则填充0，无则1
+    spark.udf register(
+      "hasBehavior", (k : String) =>
+        if( useJoinKeys ^ betterBc.contains(k) ) 1 else 0
+    )
   }
 
   def saveResult(implicit arg: Args) = {
