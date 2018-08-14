@@ -14,7 +14,7 @@ class SearchAppPv extends Runner with SimpleSpark{
 
   override def run (args: Array[ String ]): Unit = {
 
-    implicit val arg = Parser[Args](args)
+    implicit val arg = Parser[Args] ( args )
 
     //加载数据
     //hive表别名,注册临时表
