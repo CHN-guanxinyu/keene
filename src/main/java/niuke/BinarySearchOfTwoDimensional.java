@@ -34,8 +34,6 @@ public class BinarySearchOfTwoDimensional {
                 ym = (yl + yh) >> 1,
                 p = map[xm][ym];
 
-        //边界
-        if(xl == xh && yl == yh) return target == p;
 
         if (target > p)  return
                 find(target, xm + 1, xh, yl, yh, map) ||
