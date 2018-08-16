@@ -3,6 +3,7 @@ package com.keene.core.implicits
 import scala.util.Random
 
 /**
+  *
   * 未解决的问题:MapImplicitor
   */
 case object TraversableImlicitor{
@@ -20,6 +21,11 @@ extends TraversableImlicitor[T]{
 
 case class SeqImplicitor[T](@transient seq : Seq[T])
 extends TraversableImlicitor[T]{
+  /**
+    * 尽可能的使用Seq的sample方法,以消除多余的转换遍历
+    * @param n
+    * @return
+    */
   override def sample (n: Int) = {
     if(seq.size / n == 0) seq
     else{
