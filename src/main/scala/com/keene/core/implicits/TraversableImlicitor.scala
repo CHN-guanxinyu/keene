@@ -22,7 +22,8 @@ extends TraversableImlicitor[T]{
 case class SeqImplicitor[T](@transient seq : Seq[T])
 extends TraversableImlicitor[T]{
   /**
-    * 尽可能的使用Seq的sample方法,以消除多余的转换遍历
+    * Seq的sample方法性能较高,所以使用的时候需要可
+    * 能的使用Seq的sample方法,以消除多余的转换遍历
     * @param n
     * @return
     */
