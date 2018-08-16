@@ -1,6 +1,6 @@
 package com.keene.core.implicits
 
-import scala.util.Random
+import scala.math._
 
 /**
   *
@@ -31,11 +31,10 @@ extends TraversableImlicitor[T]{
     if(seq.size / n == 0) seq
     else{
       val groupSize = seq.size / n + (if(seq.size % n > n / 2) 1 else 0)
-      val rand = new Random
       val b = Seq.newBuilder[T]
       var i = 0
       while( i < n ){
-        b += seq( i * groupSize + rand.nextInt(Math.min(seq.size , (i + 1) * groupSize) - i * groupSize) )
+        b += seq( i * groupSize + random * (min(seq.size , (i + 1) * groupSize) - i * groupSize) toInt  )
         i += 1
       }
       b.result
