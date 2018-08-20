@@ -22,12 +22,12 @@ import scala.util.Try
   * @tparam T
   */
 case class AnyImplicitor[T](@transient t : T)(implicit tag : ClassTag[T]){
-  private[spark]
+
   def bc(implicit sc : SparkContext) = sc.broadcast(t).value
 }
 
 case class DataFrameImplicitor(@transient df : DataFrame) {
-  private[spark]
+
   def toKafka(implicit kafkaParam: KafkaParam): DataStreamWriter[Row] =
     df.writeStream.
       options( kafkaParam.get ).
@@ -35,7 +35,7 @@ case class DataFrameImplicitor(@transient df : DataFrame) {
 }
 
 case class SparkSessionImplicitor(@transient spark : SparkSession){
-  private[spark]
+
   def fromKafka(implicit kafkaParam: KafkaParam ): DataFrame =
     spark.
       readStream.
@@ -52,7 +52,7 @@ case class SparkSessionImplicitor(@transient spark : SparkSession){
     * @param partitions
     * @return
     */
-  private[spark]
+
   def gzipDF(path : String , partitions : Int = 10): DataFrame ={
     import spark.implicits._
     spark.sparkContext.
@@ -102,14 +102,14 @@ case class StringImplicitor(@transient str : String) extends SimpleSpark{
     * Usage: "select something".go where "cond1" show false
     * @return
     */
-  private[spark]
+
   def go: DataFrame = spark sql str
 
   /**
     * easy way to fetch data of a table or a view
     * @return
     */
-  private[spark]
+
   def tab: DataFrame = s"select * from $str" go
 
   def info = logger info str
