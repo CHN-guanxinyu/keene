@@ -42,7 +42,7 @@ def sparkConfOpt = Map(
 
 
 ## Implicitors
-We can easily use more chained calls, for example:
+We can easily use more chained calls after `import com.keene.core.implicits._`, for example:
 ### SparkSql
 ```scala
 object Foo extends App with SimpleSpark{
