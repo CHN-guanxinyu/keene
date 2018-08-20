@@ -6,7 +6,7 @@ import com.keene.spark.utils.SimpleSpark
 import com.keene.core.implicits._
 
 class WordCount extends Runner with SimpleSpark{
-  override def run (args: Array[ String ]): Unit = {
+  override def run (implicit args: Array[ String ]): Unit = {
     val argv = args.as[WordCountArg]
     val lines = sc textFile argv.path
     val wordCount = lines.flatMap(_ split "\t").map(_ -> 1).reduceByKey( _+_ )

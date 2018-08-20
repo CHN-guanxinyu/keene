@@ -13,7 +13,7 @@ import org.apache.spark.sql.DataFrame
 import scala.collection.immutable.HashSet
 
 class V2SearchAppPv  extends Runner {
-  override def run (args: Array[ String ]): Unit = {
+  override def run (implicit args: Array[ String ]): Unit = {
     /**
       * 核心逻辑
       * 1.大表joinKey去重后与小表做差得到差集`E`

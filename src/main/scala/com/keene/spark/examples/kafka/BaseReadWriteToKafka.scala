@@ -13,7 +13,7 @@ import com.keene.spark.utils.SimpleSpark
   */
 class BaseReadWriteToKafka extends SimpleSpark with Runner{
 
-  override def run(args: Array[String]): Unit = {
+  override def run(implicit args: Array[String]): Unit = {
 
     (args mkString "\t").info
     val arg = ArgumentsParser[Lv1Args](args)

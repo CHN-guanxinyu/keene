@@ -6,7 +6,7 @@ import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.spark.utils.SimpleSpark
 
 class BaseReadHiveTest extends SimpleSpark with Runner{
-  override def run (args: Array[ String ]): Unit = {
+  override def run (implicit args: Array[ String ]): Unit = {
     val arg = args.as[BaseReadHiveArg]
 
     val df = s"select * from ${arg.tableName} limit 100".go

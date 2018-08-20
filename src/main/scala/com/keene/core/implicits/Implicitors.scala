@@ -170,14 +170,11 @@ trait TraversableImlicitor[T] {
 case class ArrayImplicitor[T](@transient array : Array[T]){
   /**
     * 针对参数解析
-    * @param typ
     * @tparam U
     * @return
     */
-  def as[U >: Arguments](typ : String)(implicit tag: ClassTag[U]): U =
-    ArgumentsParser[U](array map(_ toString), typ)
+  def as[U <: Arguments](implicit tag: ClassTag[U]): U =
+    ArgumentsParser[U](array map(_ toString))
 
-  def as[U >: Arguments](implicit tag: ClassTag[U]): U =
-    as[U]("kv")
 
 }

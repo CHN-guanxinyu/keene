@@ -7,7 +7,7 @@ import com.keene.core.implicits._
 
 class Free extends Runner with SimpleSpark {
   import spark.implicits._
-  override def run (args: Array[ String ]): Unit = {
+  override def run (implicit args: Array[ String ]): Unit = {
     val arg = args.as[FreeArg]
 
     val click = "base_ads_click_sum_log".tab where($"dt" === arg.date)

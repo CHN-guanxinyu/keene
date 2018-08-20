@@ -14,7 +14,7 @@ import scala.concurrent.Future
 class V3SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
-  override def run (args: Array[ String ]): Unit = {
+  override def run (implicit args: Array[ String ]): Unit = {
     implicit val arg = args.as[Args]
     init
   }

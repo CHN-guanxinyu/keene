@@ -13,7 +13,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
   * Streaming的范围
   */
 class UnionStream extends SimpleSpark with Runner{
-  override def run(args: Array[String]): Unit = {
+  override def run(implicit args: Array[String]): Unit = {
     import spark.implicits._
 
     val arg = ArgumentsParser[Lv2Args](args)
