@@ -24,7 +24,7 @@ class V2SearchAppPv  extends Runner {
       *   (2)不在,同理,has_behavior=1
       * 5.通过存入临时目录,再执行load data读入hive表代替直接存hive表
       */
-    val arg = Parser[Args](args)
+    val arg = args.as[Args]
     val as = ActorSystem("sync-search-app-pv")
     val main = as.actorOf(Props[MainActor])
     main ! (Start, arg)
