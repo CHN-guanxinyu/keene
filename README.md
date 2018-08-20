@@ -127,6 +127,7 @@ You can easily use the arguments parser:
 ```scala
 import com.keene.core.parsers.Arguments
 class MyArgs(var fooBar : String = "", var barFoo : Boolean = false) extends Arguments{
+  //show if have --help
   def usage = "usage message"
 }
 
