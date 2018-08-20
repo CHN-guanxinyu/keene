@@ -1,43 +1,138 @@
-# ---------------佛祖保佑             永无BUG---------------
+# Keene
+Keene is a tiny tool box for scala/spark.
+
+
+## Example
+For example,the code block shown below:
+```scala
+object Foo extends App{
+  val conf = new SparkConf()
+  conf.
+  setxxx.
+  setxxx.
+  setxxx
+  val sc = new SparkContext(conf)
+  
+  sc.xxxx.xxx.collect
+  
+  val spark = SparkSession.builder.enableHiveSupport.getOrCreate()
+  spark.xxx
+  
+  val ssc = xxx
+  
+  ssc.xxx
+}
 ```
-                            _ooOoo_
-                           o8888888o
-                           88" . "88
-                           (| -_- |)
-                            O\ = /O
-                        ____/`---'\____
-                      .   ' \\| |// `.
-                       / \\||| : |||// \
-                     / _||||| -:- |||||- \
-                       | | \\\ - /// | |
-                     | \_| ''\---/'' | |
-                      \ .-\__ `-` ___/-. /
-                   ___`. .' /--.--\ `. . __
-                ."" '< `.___\_<|>_/___.' >'"".
-               | | : `- \`.;`\ _ /`;.`/ - ` : | |
-                 \ \ `-. \_ __\ /__ _/ .-` / /
-         ======`-.____`-.___\_____/___.-`____.-'======
-                            `=---='
-
-
-
-
-
-
-   
-
+is reduce to
+```scala
+object Bar extends App with SimpleSpark{
+  sc.xxxx.xxx.collect
+  spark.read.xxxx
+  ssc.xxx
+}
 ```
-# Keen
-致力于简化无用代码量,使程序员更能专注于逻辑的编写而不是浪费时间在重复的代码上
-## 本项目几个主要目标
-### 1.自定义参数解析器
-目标是客户端只需要定义参数实体类,剩下的解析工作交予解析器
-### 2.自定义xml配置解析器
-同上
-### 3.常用隐式转换封装
-开发者日常觉得常用的隐式转换会封装到这里
-### 4.常用spark功能封装
-同上
-### 5.(没想好咋做)解决spark代码经常一写一大坨,提高可读性,提高复用性
-考虑使用成块风格
-不止于spark代码
+If you want to change spark configuration,you can override the method `sparkConfOpt` :
+```scala
+def appName = "YourAppName"
+def master = "MasterUrl"
+def sparkConfOpt = Map(
+  "spark.xxx.xxx" -> "true"
+)
+```
+
+
+## Implicitors
+We can easily use more chained calls,for example:
+### SparkSql
+```scala
+object Foo extends App with SimpleSpark{
+  val df = spark sql "select * from talbeName"
+  df.xxx
+}
+``` 
+is reduced to:
+```scala
+object Bar extends App{
+  val df = "select * from tableName" go
+  df.xxx
+}
+```
+or if you just want to select all from a table,you can:
+```scala
+object Buz extends App{
+  val df = "tableName".tab
+  df.xxx
+}
+```
+### Structured Streaming
+When we want to fetch data from Kafka:
+```scala
+spark.
+readStream.
+format("kafka").
+option("foo", "xxx").
+option("bar", "xxx").
+load
+```
+is reduced to:
+```scala
+spark fromKafka KafkaParam("brokers" ,"subscribe")
+```
+or
+```scala
+implicit val param = KafkaParam("brokers", "subscribe", extraOpts=Map("xxx" -> "xxx"))
+spark.fromKafka select "xxx" where "xxx"
+```
+Correspondingly, you can use `toKafka`:
+```scala
+df.toKafka.start
+```
+### Loading Gzip File
+If you want to load data from a gzip file, you can:
+```scala
+spark gzipDF "path/to/gzipFile"
+```
+### BroadCast
+```scala
+val arrBc = Array(1,2,3).bc
+rdd map{
+  //do something with arrBc
+}
+```
+### Others
+#### reflect:
+```scala
+Class.forName("package.to.ClassA").getConstructor().newInstance().asInstanceOf[ClassA]
+```
+is reduced to:
+```scala
+"package.to.ClassA".as[ClassA]
+```
+#### logger:
+```scala
+val logger = LoggerFactory getLogger "Console"
+logger info "foobar"
+```
+is reduced to: 
+```scala
+"foobar".info //or debug/warn/error
+```
+#### taking sample from collections:
+```scala
+[seq|list|array|set|map] sample //default 20
+[seq|list|array|set|map] sample 100
+```
+## Arguments Parser
+You can easily use the arguments parser:
+```scala
+import com.keene.core.parsers.Arguments
+class MyArgs(var fooBar : String = "", var barFoo : Boolean = false) extends Arguments{
+  def usage = "usage message"
+}
+
+//java package.to.Foo --foo-bar hello --bar-foo true
+object Foo extends App{
+  val myArgs = args.as[MyArgs]
+  //myArgs.fooBar,myArgs.barFoo
+}
+```
