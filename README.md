@@ -3,7 +3,7 @@ Keene is a tiny tool box for scala/spark.
 
 
 ## Example
-For example,the code block shown below:
+For example, the code block shown below:
 ```scala
 object Foo extends App{
   val conf = new SparkConf()
@@ -23,7 +23,7 @@ object Foo extends App{
   ssc.xxx
 }
 ```
-is reduce to
+is reduce to:
 ```scala
 object Bar extends App with SimpleSpark{
   sc.xxxx.xxx.collect
@@ -31,7 +31,7 @@ object Bar extends App with SimpleSpark{
   ssc.xxx
 }
 ```
-If you want to change spark configuration,you can override the method `sparkConfOpt` :
+If you want to change spark configuration, you can override the method `sparkConfOpt` :
 ```scala
 def appName = "YourAppName"
 def master = "MasterUrl"
@@ -42,7 +42,7 @@ def sparkConfOpt = Map(
 
 
 ## Implicitors
-We can easily use more chained calls,for example:
+We can easily use more chained calls, for example:
 ### SparkSql
 ```scala
 object Foo extends App with SimpleSpark{
@@ -57,7 +57,7 @@ object Bar extends App{
   df.xxx
 }
 ```
-or if you just want to select all from a table,you can:
+or if you just want to select all from a table, you can:
 ```scala
 object Buz extends App{
   val df = "tableName".tab
@@ -133,6 +133,6 @@ class MyArgs(var fooBar : String = "", var barFoo : Boolean = false) extends Arg
 //java package.to.Foo --foo-bar hello --bar-foo true
 object Foo extends App{
   val myArgs = args.as[MyArgs]
-  //myArgs.fooBar,myArgs.barFoo
+  //myArgs.fooBar, myArgs.barFoo
 }
 ```
