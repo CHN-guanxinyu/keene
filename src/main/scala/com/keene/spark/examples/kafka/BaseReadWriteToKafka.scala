@@ -15,7 +15,7 @@ class BaseReadWriteToKafka extends SimpleSpark with Runner{
 
   override def run(args: Array[String]): Unit = {
 
-    info(args mkString "\t")
+    (args mkString "\t").info
     val arg = ArgumentsParser[Lv1Args](args)
     val readParam = KafkaParam( arg.brokers , arg.subscribe )
 

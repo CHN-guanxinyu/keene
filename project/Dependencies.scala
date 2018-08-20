@@ -4,27 +4,24 @@ import sbt.Keys._
 object Dependencies {
   val core = Seq(
     Lib.lombok,
-//    Lib.scalaCheck,
+//    Lib.scala_check,
     Lib.slf4j_impl,
     Lib.log4j_api,
     Lib.scalactic,
-    Lib.scalaTest,
+    Lib.scala_test,
     Lib.commons_codec
   )
 }
 
-
-
-
 object Version{
-
-
+  val akka = "2.5.11"
+  val akka_http = "10.0.11"
   val commons_codec = "1.10"
 
   //scala
   val scala = "2.11.8"
-  val scalaTest = "3.0.5"
-  val scalaCheck = "1.13.0"
+  val scala_test = "3.0.5"
+  val scala_check = "1.13.0"
   val scalactic = "3.0.5"
   //spark
   val spark = "2.3.0"
@@ -38,7 +35,6 @@ object Version{
   val hbase = "1.0.2"
   val hbase_spark_connr = hbase
 
-
   val lombok = "1.16.20"
 
   val log4j = "2.11.0"
@@ -51,33 +47,32 @@ object Version{
   }
 }
 
-
-
-
-
-
-
-
 object Lib{
+  object akka{
+    val http            = "com.typesafe.akka"           %% "akka-http"                  % Version.akka_http
+    val http_spray_json = "com.typesafe.akka"           %% "akka-http-spray-json"       % Version.akka_http
+    val http_xml        = "com.typesafe.akka"           %% "akka-http-xml"              % Version.akka_http
+    val stream          = "com.typesafe.akka"           %% "akka-stream"                % Version.akka
 
-  val commons_codec   = "commons-codec"               % "commons-codec"               % Version.commons_codec
-
-  val lombok          = "org.projectlombok"           % "lombok"                      % Version.lombok        % "provided"
-  val scalaCheck      = "org.scalacheck"              %% "scalacheck"                 % Version.scalaCheck
-  val scalaTest       = "org.scalatest"               %% "scalatest"                  % Version.scalaTest     % "test"
-  val scalactic       = "org.scalactic"               %% "scalactic"                  % Version.scalactic
-
-  val slf4j_api       = "org.slf4j"                   % "slf4j-api"                   % Version.slf4j
-  val slf4j_impl      = "org.apache.logging.log4j"    % "log4j-slf4j-impl"            % Version.log4j
-  val log4j_api       = "org.apache.logging.log4j"    % "log4j-api"                   % Version.log4j
-
-  object jackson {
-    val core          = "com.fasterxml.jackson.core"  % "jackson-core"                % Version.jackson
-    val databind      = "com.fasterxml.jackson.core"  % "jackson-databind"            % Version.jackson
-    val mudule_scala  = "com.fasterxml.jackson.module"% "jackson-module-scala_2.11"   % Version.jackson
+    val all = Seq(http, http_spray_json, http_xml, stream)
   }
 
+  val commons_codec     = "commons-codec"               % "commons-codec"               % Version.commons_codec
 
+  val lombok            = "org.projectlombok"           % "lombok"                      % Version.lombok        % "provided"
+  val scala_check       = "org.scalacheck"              %% "scalacheck"                 % Version.scala_check
+  val scala_test        = "org.scalatest"               %% "scalatest"                  % Version.scala_test     % "test"
+  val scalactic         = "org.scalactic"               %% "scalactic"                  % Version.scalactic
+
+  val slf4j_api         = "org.slf4j"                   % "slf4j-api"                   % Version.slf4j
+  val slf4j_impl        = "org.apache.logging.log4j"    % "log4j-slf4j-impl"            % Version.log4j
+  val log4j_api         = "org.apache.logging.log4j"    % "log4j-api"                   % Version.log4j
+
+  object jackson {
+    val core            = "com.fasterxml.jackson.core"  % "jackson-core"                % Version.jackson
+    val databind        = "com.fasterxml.jackson.core"  % "jackson-databind"            % Version.jackson
+    val mudule_scala    = "com.fasterxml.jackson.module"% "jackson-module-scala_2.11"   % Version.jackson
+  }
 
   object spark{
     private def foo( md : String ) = "org.apache.spark" %% s"spark-$md" % Version.spark 
@@ -132,6 +127,4 @@ object Lib{
   val kafka = "org.apache.kafka" %% "kafka" % Version.kafka excludeAll ExclusionRule("com.fasterxml.jackson.core")
 
 //  val scalajs_dom =
-
-
 }

@@ -11,8 +11,10 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import scala.reflect.ClassTag
 
 trait Implicitor {
-  implicit def to(sql: String): StringImplicitor = StringImplicitor(sql)
-  implicit def to(spark : SparkSession) : SparkSessionImplicitor = SparkSessionImplicitor(spark)
-  implicit def to(df : DataFrame) : DataFrameImplicitor = DataFrameImplicitor(df)
-  implicit def to[T](t: T)(implicit tag : ClassTag[T]) : AnyImplicitor[T] = AnyImplicitor(t)
+  implicit def to(sql: String) = StringImplicitor(sql)
+  implicit def to(spark : SparkSession)  = SparkSessionImplicitor(spark)
+  implicit def to(df : DataFrame) = DataFrameImplicitor(df)
+  implicit def to[T, U](map : Map[T, U]) = MapImplicitor(map)
+  implicit def to[T](t : Traversable[T] ) = TraversableImlicitor(t)
+  implicit def to[T](t: T)(implicit tag : ClassTag[T]) = AnyImplicitor(t)
 }

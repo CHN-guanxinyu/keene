@@ -1,23 +1,22 @@
-package com.keene.spark.examples.main
+package com.keene.core
 
-import com.keene.core.Runner
+import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.core.implicits._
-import com.keene.core.parsers.{Arguments, ArgumentsParser => Parser}
 
 object Main extends App {
-  val arg = Parser[MainArg](args)
-  s"com.keene.spark.examples.${arg.klass}".as[Runner] run
+  def arg  = ArgumentsParser[MainArg](args)
+  s"${arg.`class`}".as[Runner] run
     args ++ Seq(if( arg.man ) "--help" else "")
 }
 
-class MainArg(
-  var klass : String = "",
+private[core] class MainArg(
+  var `class` : String = "",
   var man : Boolean = false
 ) extends Arguments {
 
   def usage =
     """Options:
-      |--klass
+      |--class
       |--man        如果需要查看调用类的帮助,将此项设置为true,而不是--help
     """.stripMargin
 

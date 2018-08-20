@@ -21,8 +21,8 @@ lazy val keene = preownedKittenProject("keene" , ".").
     """.stripMargin
     }else "" )),
 
-    libraryDependencies ++= Dependencies.core,
     libraryDependencies ++= Lib.spark.all,
+    libraryDependencies ++= Lib.akka.all,
     libraryDependencies ++= Seq(
       Lib.kafka,
       Lib.spark.streaming_kafka,

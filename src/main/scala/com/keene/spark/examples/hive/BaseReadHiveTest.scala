@@ -1,6 +1,7 @@
 package com.keene.spark.examples.hive
 
 import com.keene.core.Runner
+import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.spark.utils.SimpleSpark
 
@@ -8,7 +9,7 @@ class BaseReadHiveTest extends SimpleSpark with Runner{
   override def run (args: Array[ String ]): Unit = {
     val arg = ArgumentsParser[BaseReadHiveArg](args)
 
-//    val df = s"select * from ${arg.tableName} limit 100".go
+    val df = s"select * from ${arg.tableName} limit 100".go
 
     val ds = spark.readStream.
       format("socket").
@@ -16,8 +17,7 @@ class BaseReadHiveTest extends SimpleSpark with Runner{
       option("port" , arg.port).
       load
 
-    ds.writeStream.format("console").start
-//    ds.join(df , Seq("key_id"))
+    ds.join(df , Seq("key_id")).writeStream.format("console").start
 
     spark.streams.awaitAnyTermination
   }

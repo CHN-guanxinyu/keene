@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-
-source bin/ads_anti.sh
+DATE=$1
 JAR=$(ls target/scala*/*.jar)
-DATE='2018-07-29'
+source bin/run_examples.sh
 
 NUM_EXECUTORS=400
 CORES=2

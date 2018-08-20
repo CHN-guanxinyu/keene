@@ -1,10 +1,10 @@
 package com.keene.core.implicits
 
+import com.keene.spark.utils.SimpleSpark
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
-case class StringImplicitor(@transient str : String) {
-  lazy val spark = SparkSession.builder.enableHiveSupport.getOrCreate
+case class StringImplicitor(@transient str : String) extends SimpleSpark{
 
   /**
     * Usage: "package.to.classA".as[classA].foo.bar
@@ -19,5 +19,11 @@ case class StringImplicitor(@transient str : String) {
     * @return
     */
   def go: DataFrame = spark sql str
+
+
+  def info = logger info str
+  def debug = logger debug str
+  def warn = logger warn str
+  def error = logger error str
 }
 

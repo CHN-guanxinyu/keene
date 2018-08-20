@@ -5,7 +5,7 @@ trait BaseEnv {
 
   def appName: String = this.getClass.getSimpleName.filter(!_.equals('$'))
 
-  def master: String = "local"
+  def master: String = "yarn"
 
   def sparkConfOpts: Map[String, String] = Map.empty
 
