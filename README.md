@@ -6,7 +6,7 @@ Keene is a tiny tool box for scala/spark.
 For example, the code block shown below:
 ```scala
 object Foo extends App{
-  val conf = new SparkConf().
+  val conf = new SparkConf().setAppName(appName).setMaster(master)
     setxxx.
     setxxx.
     setxxx
@@ -18,8 +18,8 @@ object Foo extends App{
   val spark = SparkSession.builder.enableHiveSupport.getOrCreate()
   spark.xxx
   
-  val ssc = xxx
   
+  val ssc = new StreamingContext(conf, Seconds(1))
   ssc.xxx
 }
 ```
