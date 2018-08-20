@@ -14,6 +14,10 @@ import scala.concurrent.Future
 class V3SearchAppPv extends Runner with SimpleSpark{
 
   import spark.implicits._
+  override def run (args: Array[ String ]): Unit = {
+    implicit val arg = args.as[Args]
+    init
+  }
 
   def init(implicit arg : Args) ={
     implicit val date : String = arg date
@@ -82,11 +86,6 @@ class V3SearchAppPv extends Runner with SimpleSpark{
        |overwrite into table ${arg.resultTable}
        |partition (dt='${arg.date}')
     """.stripMargin go
-  }
-  override def run (args: Array[ String ]): Unit = {
-
-    implicit val arg = Parser[Args](args)
-    init
   }
 
   def fetchDF(alias : String) : DataFrame = s"select * from ${alias}".go
