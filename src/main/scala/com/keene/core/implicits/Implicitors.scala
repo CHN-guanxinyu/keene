@@ -101,6 +101,11 @@ case class StringImplicitor(@transient str : String) extends SimpleSpark{
     */
   def go: DataFrame = spark sql str
 
+  /**
+    * easy way to fetch data of a table or a view
+    * @return
+    */
+  def tab: DataFrame = s"select * from $str" go
 
   def info = logger info str
   def debug = logger debug str
