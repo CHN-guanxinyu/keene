@@ -6,11 +6,11 @@ Keene is a tiny tool box for scala/spark.
 For example, the code block shown below:
 ```scala
 object Foo extends App{
-  val conf = new SparkConf()
-  conf.
-  setxxx.
-  setxxx.
-  setxxx
+  val conf = new SparkConf().
+    setxxx.
+    setxxx.
+    setxxx
+    
   val sc = new SparkContext(conf)
   
   sc.xxxx.xxx.collect
