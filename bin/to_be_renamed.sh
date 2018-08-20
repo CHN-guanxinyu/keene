@@ -7,6 +7,6 @@ spark-submit \
 --num-executors 100 \
 --executor-cores 4 \
 --executor-memory 8g \
---conf spark.sql.shuffle.partitions 1200 \
+--conf spark.sql.shuffle.partitions=1200 \
 $LOCAL_JAR \
 --date $DATE
