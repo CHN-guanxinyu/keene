@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+javac Test.java
+javap -v Test > r.txt
