@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <data-sources>
     <apis>
-        <api name="single" desc="只出现一次的click_id"/>
-        <api name="multiple" desc="出现多次的click_id"/>
+        <api name="single" desc="只出现一次的id"/>
+        <api name="multiple" desc="出现多次的id"/>
     </apis>
 
-    <table name="click_id_count"
+    <table name="id_count"
            source="hive"
-           sql="select click_id, count(1) count from ad.ad_base_click where dt='${date}' group by click_id"
+           sql="select id, count(1) count from base.table1 where dt='${date}' group by id"
     />
 
     <table name="single"
-           from="click_id_count"
-           sql="select * from click_id_count where count = 1"
+           from="id_count"
+           sql="select * from id_count where count = 1"
     />
 
     <table name="multiple"
-           from="click_id_count"
-           sql="select * from click_id_count where count > 1"
+           from="id_count"
+           sql="select * from id_count where count > 1"
    />
 </data-sources>
