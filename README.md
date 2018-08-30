@@ -133,8 +133,9 @@ class MyArgs(var fooBar : String = "", var barFoo : Boolean = false) extends Arg
 
 //java package.to.Foo --foo-bar hello --bar-foo true
 object Foo extends App{
-  val myArgs = args.as[MyArgs]
+  val (myArgs, varMap) = args.as[MyArgs]
   //myArgs.fooBar, myArgs.barFoo
+  //varMap is a Map("fooBar"->hello, "barFoo"->true)
 }
 ```
 
