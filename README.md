@@ -1,7 +1,7 @@
 # Keene
 Keene is a tiny tool box for scala/spark.
 
-
+## Core
 ## Example
 For example, the code block shown below:
 ```scala
@@ -139,9 +139,10 @@ object Foo extends App{
 ```
 
 
-# 数据计算通用框架
-通过xml来构建数据流，方便开发
+# Xsql
+通过xml来构建数据流，业务与框架分离解耦，方便开发
 ## 快速开始
+_**``在`bin/xsql_demo.sh`和`conf/xsql_demo/`给出了一个简单的例子``**_
 ### 基本元素:`<data-sources>`与`<results>`
 * 至少两个文件，两个根节点分别是上面的两个
 * results中通过dependency依赖data-sources所在文件

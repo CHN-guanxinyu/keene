@@ -39,7 +39,7 @@ lazy val keene = preownedKittenProject("keene" , ".").
 def preownedKittenProject(name : String , path : String ) : Project ={
   Project( name , file(path) ).
     settings(
-      version := "0.1-SNAPSHOT",
+      version := "1.2-SNAPSHOT",
       organization := "com.keene",
       scalaVersion := Version.scala,
       test in assembly := {}
