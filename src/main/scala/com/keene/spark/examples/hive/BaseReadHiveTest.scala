@@ -7,7 +7,7 @@ import com.keene.spark.utils.SimpleSpark
 
 class BaseReadHiveTest extends SimpleSpark with Runner{
   override def run (implicit args: Array[ String ]): Unit = {
-    val arg = args.as[BaseReadHiveArg]
+    val arg = args.as[BaseReadHiveArg]._1
 
     val df = s"select * from ${arg.tableName} limit 100".go
 

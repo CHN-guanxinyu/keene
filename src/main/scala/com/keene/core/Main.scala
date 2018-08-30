@@ -5,7 +5,7 @@ import com.keene.core.implicits._
 
 object Main extends App {
 
-  val arg  = ArgumentsParser[MainArg](args)
+  val arg  = args.as[MainArg]._1
 
   implicit val argv = args ++ Array(if( arg man ) "--help" else "")
 

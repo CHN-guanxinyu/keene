@@ -1,5 +1,7 @@
 package com.keene.spark.xsql.utils.parsers.argument
 
+import com.keene.core.parsers.ArgumentsParser
+
 import scala.collection.mutable
 import scala.reflect.ClassTag
 

@@ -16,7 +16,7 @@ class BaseReadWriteToKafka extends SimpleSpark with Runner{
   override def run(implicit args: Array[String]): Unit = {
 
     (args mkString "\t").info
-    val arg = ArgumentsParser[Lv1Args](args)
+    val arg = args.as[Lv1Args]._1
     val readParam = KafkaParam( arg.brokers , arg.subscribe )
 
     spark fromKafka readParam createOrReplaceTempView "t"
