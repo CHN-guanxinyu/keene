@@ -3,14 +3,12 @@ package com.keene.foo_say_bar_dao
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-import com.keene.core.implicits._
 import com.keene.spark.utils.SimpleSpark
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.parallel.ForkJoinTaskSupport
 import scala.concurrent.forkjoin.ForkJoinPool
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import scala.xml.Node
 
 object Task extends App with SimpleSpark {
 
@@ -85,13 +83,38 @@ object Task extends App with SimpleSpark {
   sqls map spark.sql*/
 }
 
+sealed trait AttributeSupport{
+  def node : Map[String, String]
+
+  protected def _key(k : String = "") = key = k
+  private var key : String = _
+  protected lazy val value = node(key)
+
+}
+
+sealed trait OptionalAttributeSupport extends AttributeSupport{
+  def isDefined = false
+  def doThis
+  if(isDefined) doThis
+}
+
+trait FromSupport extends AttributeSupport{
+  _key("from")
+  val from = value
+}
+
+trait UnionSupport extends OptionalAttributeSupport {
+  _key("union-table")
+  val unionTable = value
+  override def doThis: Unit = println(1)
+}
+
+class A extends  UnionSupport with FromSupport {
+
+  def node = Map("from" -> "123", "union-table" -> "qwe")
+
+}
 object Task1 extends App with SimpleSpark {
-  import spark.implicits._
-  val t = sc.makeRDD(List("{k:1,v:2}")).toDF("value")
-  t.createOrReplaceTempView("t")
-//  """
-//    |select *
-//    |from t
-//    |LATERAL VIEW json_tuple(value, k, v)
-//  """.stripMargin.go show
+  val a = new A()
+  println(a.from, a.unionTable)
 }

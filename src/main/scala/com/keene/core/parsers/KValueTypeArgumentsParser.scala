@@ -1,7 +1,6 @@
-package com.keene.core.parsers
+package com.keene.spark.xsql.utils.parsers.argument
 
-import org.slf4j.LoggerFactory
-
+import scala.collection.mutable
 import scala.reflect.ClassTag
 
 /**
@@ -20,7 +19,7 @@ import scala.reflect.ClassTag
   *
   */
 case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
-  extends ArgumentsParser[T] {
+  extends ArgumentsParser[(T, Map[String, String])] {
 
   private lazy val klass = t.runtimeClass
 
@@ -32,7 +31,7 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
     * 3.遍历kv对,对于每个k,找到相应setter,并将v set进去
     * @return
     */
-  override def parse(args: Array[String]) : T = {
+  override def parse(args: Array[String]) : (T, Map[String, String]) = {
     stopIfNeedHelp(args)
 
     val resultObj = defaultInstance
@@ -48,6 +47,7 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
       val w = k drop 2 split "-"
       val varName = w.head + w.tail.map(_ capitalize).mkString
 
+      varMap += (varName -> v)
       namedSetterMapper.get(varName) foreach { setter =>
         //处理类型问题
         //先定义几种方案,当以下方案都不可行则抛异常
@@ -71,7 +71,7 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
       }
     }
 
-    resultObj.asInstanceOf[T]
+    (resultObj.asInstanceOf[T], varMap.toMap)
   }
 
 
@@ -108,22 +108,22 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
   //参数实体类构造方法参数类型列表
   private lazy val types: Array[Class[_]] =
     klass.
-    getDeclaredConstructors.
-    head.
-    getParameterTypes
+      getDeclaredConstructors.
+      head.
+      getParameterTypes
 
   //参数实体类成员变量名和对应setter的映射
   private lazy val namedSetterMapper =
     methods.filter(_.getName endsWith "_$eq").
-    map(s => s.getName.replaceAll("_\\$eq", "") -> s).
-    toMap
+      map(s => s.getName.replaceAll("_\\$eq", "") -> s).
+      toMap
 
 
 
   //参数实体类由scala自动生成的获取默认参数值的方法
   private lazy val applyDefaultFun =
     methods.filter(_.getName startsWith "$lessinit").
-    sortBy( _.getName.split("\\$").last toInt )
+      sortBy( _.getName.split("\\$").last toInt )
 
   //参数实体类的所有方法
   private lazy val methods = klass.getDeclaredMethods
@@ -137,5 +137,7 @@ case class KValueTypeArgumentsParser[T](implicit t: ClassTag[T])
       System.err.println(klass getMethod "usage" invoke zero toString)
       System exit 1
     }
+
+  private val varMap = mutable.Map[String, String]()
 }
 

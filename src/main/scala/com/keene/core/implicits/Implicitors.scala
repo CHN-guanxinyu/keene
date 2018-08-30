@@ -2,7 +2,7 @@ package com.keene.core.implicits
 
 import java.nio.charset.{Charset, StandardCharsets}
 
-import com.keene.core.parsers.{Arguments, ArgumentsParser, KValueTypeArgumentsParser}
+import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.kafka.KafkaParam
 import com.keene.spark.utils.SimpleSpark
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
@@ -105,12 +105,20 @@ case class StringImplicitor(@transient str : String) extends SimpleSpark{
 
   def go: DataFrame = spark sql str
 
+  def runSql = go
+
   /**
     * easy way to fetch data of a table or a view
     * @return
     */
 
   def tab: DataFrame = s"select * from $str" go
+
+  def removeBlanks = replaceBlanks("")
+  def replaceBlanks(): String = replaceBlanks(" ")
+  def replaceBlanks(replacement : String): String = {
+    str.replaceAll("\t|\r|\n", replacement).replaceAll(" {2,}", replacement).trim
+  }
 
   def info = logger info str
   def debug = logger debug str
@@ -173,7 +181,7 @@ case class ArrayImplicitor[T](@transient array : Array[T]){
     * @tparam U
     * @return
     */
-  def as[U <: Arguments](implicit tag: ClassTag[U]): U =
+  def as[U <: Arguments](implicit tag: ClassTag[U]) =
     ArgumentsParser[U](array map(_ toString))
 
 
