@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<results>
+    <dependencies>
+        <dependency file="./conf/quality/demo/data_sources.xml"/>
+    </dependencies>
+
+    <result from="single"
+            to="console"
+            show="100"
+    />
+
+    <result from="multiple"
+            to="console"
+            show="50"
+    />
+
+</results>
