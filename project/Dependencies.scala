@@ -42,6 +42,8 @@ object Version{
 
   val jackson = "2.6.2"
 
+  val ini4j = "0.5.4"
+
   object min{
     val jdk = "1.8"
   }
@@ -68,6 +70,7 @@ object Lib{
   val slf4j_impl        = "org.apache.logging.log4j"    % "log4j-slf4j-impl"            % Version.log4j
   val log4j_api         = "org.apache.logging.log4j"    % "log4j-api"                   % Version.log4j
 
+  val ini4j             = "org.ini4j"                   % "ini4j"                       % Version.ini4j
   object jackson {
     val core            = "com.fasterxml.jackson.core"  % "jackson-core"                % Version.jackson
     val databind        = "com.fasterxml.jackson.core"  % "jackson-databind"            % Version.jackson

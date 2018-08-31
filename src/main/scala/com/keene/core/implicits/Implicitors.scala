@@ -28,6 +28,9 @@ case class AnyImplicitor[T](@transient t : T)(implicit tag : ClassTag[T]){
 
 case class DataFrameImplicitor(@transient df : DataFrame) {
 
+  def toKafka(brokers : String, topic : String, extOpts : Map[String, String])=
+    toKafka(KafkaParam(brokers, topic, "writer", extOpts))
+
   def toKafka(implicit kafkaParam: KafkaParam): DataStreamWriter[Row] =
     df.writeStream.
       options( kafkaParam.get ).
@@ -35,6 +38,9 @@ case class DataFrameImplicitor(@transient df : DataFrame) {
 }
 
 case class SparkSessionImplicitor(@transient spark : SparkSession){
+
+  def fromKafka(brokers : String, subscribe : String, extOpts : Map[String, String]) =
+    fromKafka(KafkaParam(brokers, subscribe, "reader", extOpts))
 
   def fromKafka(implicit kafkaParam: KafkaParam ): DataFrame =
     spark.
