@@ -9,12 +9,13 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.spark.SparkContext
 import org.apache.spark.input.PortableDataStream
-import org.apache.spark.sql.streaming.DataStreamWriter
+import org.apache.spark.sql.streaming.{DataStreamWriter, StreamingQuery, Trigger}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
 import scala.math.{min, random}
 import scala.reflect.ClassTag
 import scala.util.Try
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 /**
   *
@@ -26,20 +27,32 @@ case class AnyImplicitor[T](@transient t : T)(implicit tag : ClassTag[T]){
   def bc(implicit sc : SparkContext) = sc.broadcast(t).value
 }
 
-case class DataFrameImplicitor(@transient df : DataFrame) {
+case class DataSetImplicitor[T](@transient ds : Dataset[T]) {
 
-  def toKafka(brokers : String, topic : String, extOpts : Map[String, String])=
+  def view(name : Symbol) : Unit = view(name.name)
+  def view(name : String) : Unit = ds createOrReplaceTempView name
+
+  def toConsole : StreamingQuery = toConsole("append", Trigger.ProcessingTime(1000))
+  def toConsole(mode : String, trigger : Trigger) : StreamingQuery  =
+    ds.writeStream.
+      format("console").
+      trigger(trigger).
+      outputMode(mode).
+      start
+
+  def toKafka(brokers : String, topic : String, extOpts : Map[String, String] = Map.empty[String,String]) : StreamingQuery=
     toKafka(KafkaParam(brokers, topic, "writer", extOpts))
 
-  def toKafka(implicit kafkaParam: KafkaParam): DataStreamWriter[Row] =
-    df.writeStream.
+  def toKafka(implicit kafkaParam: KafkaParam) : StreamingQuery =
+    ds.writeStream.
       options( kafkaParam.get ).
-      format("kafka")
+      format("kafka").
+      start
 }
 
 case class SparkSessionImplicitor(@transient spark : SparkSession){
 
-  def fromKafka(brokers : String, subscribe : String, extOpts : Map[String, String]) =
+  def fromKafka(brokers : String, subscribe : String, extOpts : Map[String, String] = Map.empty[String,String]) : DataFrame =
     fromKafka(KafkaParam(brokers, subscribe, "reader", extOpts))
 
   def fromKafka(implicit kafkaParam: KafkaParam ): DataFrame =

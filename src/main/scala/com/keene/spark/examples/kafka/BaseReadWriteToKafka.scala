@@ -23,9 +23,9 @@ class BaseReadWriteToKafka extends SimpleSpark with Runner{
 
     implicit val writeParam = KafkaParam( arg.brokers , arg.topic , as = "writer")
 
-    "select * from t".go.toKafka start
+    "select * from t".go.toKafka
 
-    "select base64(CAST(value as STRING)) value from t".go.toKafka start
+    "select base64(CAST(value as STRING)) value from t".go.toKafka
 
     spark.streams.awaitAnyTermination
   }

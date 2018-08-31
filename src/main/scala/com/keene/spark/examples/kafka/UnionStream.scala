@@ -36,7 +36,7 @@ class UnionStream extends SimpleSpark with Runner{
     val unionDS = file.join(kafka , Seq("key")).
       selectExpr("key","concat_ws('' , v1 , v2) as value")
 
-    unionDS.toKafka(writeParam).start
+    unionDS.toKafka(writeParam)
 
     spark.streams.awaitAnyTermination
   }
