@@ -100,6 +100,12 @@ rdd map{
 }
 ```
 ### Others
+#### String utils:
+```scala
+"hi  scala   hello   \n\r   \n  world".replaceBlanks(",") //hi,scala,hello,world
+//str.replaceBlanks default str.replaceBlanks(" ")
+//str.removeBlanks => str.replaceBlanks("")
+```
 #### reflect:
 ```scala
 Class.forName("package.to.ClassA").getConstructor().newInstance().asInstanceOf[ClassA]
@@ -127,7 +133,7 @@ You can easily use the arguments parser:
 ```scala
 import com.keene.core.parsers.Arguments
 class MyArgs(var fooBar : String = "", var barFoo : Boolean = false) extends Arguments{
-  //show if have --help
+  //show when there is --help
   def usage = "usage message"
 }
 
@@ -388,7 +394,7 @@ file1.xml:
 ```
 通过这种方式解决不同计算程序间代码冗余的操作，也可以防止数据不一致性。
 ### 最后
-* 由于每个中间表都是在spark上下文中注册了的，所以在调试的时候可以先取消`<results>`的输出，用`spark-shell --jars anti_batch.jar`去执行main类，然后就可以随意的分析查看相关数据了。
+* 由于每个中间表都是在spark上下文中注册了的，所以在调试的时候可以先取消`<results>`的输出，用`spark-shell --jars xxx.jar`去执行main类，然后就可以随意的分析查看相关数据了。
 * 默认情况下，程序会维护一个map，解析xml的时候，对于每个表名都存有依赖他的数量，`from`属性就是用来计算这个数量的，当被依赖数量大于1的时候，默认进行cache。
 * 不需要关心表会读多的问题，因为程序会根据xml进行反向解析，从`<results>`的每一项开始向前不断通过`<result>`的`input` 属性和`<table>`的`from`属性寻找依赖表，也就是只会读用到的表。
 * 对于不同计算程序合理使用`<dependencies>`会大大减少代码量。
