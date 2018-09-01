@@ -80,13 +80,24 @@ spark fromKafka KafkaParam("brokers" ,"subscribe")
 ```
 or
 ```scala
+spark fromKafka ("brokers" ,"subscribe")
+```
+or
+```scala
 implicit val param = KafkaParam("brokers", "subscribe", extraOpts=Map("xxx" -> "xxx"))
+
 spark.fromKafka select "xxx" where "xxx"
 ```
 Correspondingly, you can use `toKafka`:
 ```scala
-df.toKafka.start
+df.toKafka("brokers", "topics")
 ```
+or
+```scala
+implicit val kafkaWriterParam ...
+df.toKafka
+```
+There will be more methods useful such as `toConsole` or `toSomeSource`
 ### Loading Gzip File
 If you want to load data from a gzip file, you can:
 ```scala
