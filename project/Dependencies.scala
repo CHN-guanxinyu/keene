@@ -91,7 +91,7 @@ object Lib{
     val all = Seq( core , sql , mllib , graphx , streaming )
   }
 
-  object hbase{
+  /*object hbase{
     private def foo( md : String )="org.apache.hbase"   %s"hbase-$md"  % Version.hbase % "provided" excludeAll(
       ExclusionRule(
         organization = "javax.servlet",
@@ -120,7 +120,7 @@ object Lib{
     )
 
     val all = Seq( common , client , server , protocol , hadoop2_compat , hadoop_compat , spark_connector )
-  }
+  }*/
 
   val hadoop_client = "org.apache.hadoop" % "hadoop-client" % Version.hadoop excludeAll(
     ExclusionRule(organization="joda-time"),
