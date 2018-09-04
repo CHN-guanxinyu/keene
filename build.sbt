@@ -34,7 +34,7 @@ def preownedKittenProject(name : String , path : String ) : Project ={
       scalaVersion := Version.scala,
       test in assembly := {},
       assemblyMergeStrategy in assembly := {
-        case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.last
+        case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.deduplicate
         case _ => MergeStrategy.last
       }
     ).enablePlugins(AssemblyPlugin)
