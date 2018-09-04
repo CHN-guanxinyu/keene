@@ -76,17 +76,17 @@ load
 ```
 is reduced to:
 ```scala
-spark fromKafka KafkaParam("brokers" ,"subscribe")
+spark fromKafka KafkaParam("brokers" ,"subscribe") toConsole
 ```
 or
 ```scala
-spark fromKafka ("brokers" ,"subscribe")
+spark fromKafka("brokers" ,"subscribe") toConsole
 ```
 or
 ```scala
 implicit val param = KafkaParam("brokers", "subscribe", extraOpts=Map("xxx" -> "xxx"))
 
-spark.fromKafka select "xxx" where "xxx"
+spark.fromKafka select "xxx" where "xxx" toConsole
 ```
 Correspondingly, you can use `toKafka`:
 ```scala
