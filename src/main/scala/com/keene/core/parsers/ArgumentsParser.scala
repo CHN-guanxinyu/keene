@@ -1,6 +1,5 @@
 package com.keene.core.parsers
 
-import com.keene.core.parsers.Parser
 import com.keene.spark.xsql.utils.parsers.argument.KValueTypeArgumentsParser
 
 import scala.reflect.ClassTag
