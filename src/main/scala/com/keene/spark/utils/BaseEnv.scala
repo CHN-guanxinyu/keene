@@ -18,7 +18,6 @@ trait BaseEnv {
 
     val cfg = new Sconf().
       setAppName(appName).
-      setMaster(master).
       setAll(sparkConfOpts)
 
     //Win环境下默认local[*]
