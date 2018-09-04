@@ -1,18 +1,6 @@
-import scala.sys.process.Process
-
-val gitHeadCommitSha = taskKey[String]("determine the current git commit SHA")
-val makeVersionProperties = taskKey[Seq[File]]("make a version.properties file.")
-
-inThisBuild( gitHeadCommitSha := Process("git rev-parse HEAD").lineStream.head )
 
 lazy val keene = preownedKittenProject("keene" , ".").
   settings(
-    makeVersionProperties := {
-      val propFile = (resourceManaged in Compile).value / "version.properties"
-      val content = s"version=${gitHeadCommitSha.value}"
-      IO.write( propFile , content )
-      Seq(propFile)
-    },
     onLoadMessage ~= ( _ + ( if( (sys props "java.specification.version") < Version.min.jdk ) {
       s"""
          |You seem to not be running Java ${Version.min.jdk}.
