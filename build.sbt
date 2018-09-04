@@ -32,6 +32,7 @@ def preownedKittenProject(name : String , path : String ) : Project ={
       version := "1.2-SNAPSHOT",
       organization := "com.keene",
       scalaVersion := Version.scala,
-      test in assembly := {}
+      test in assembly := {},
+      assemblyMergeStrategy in assembly := (_ => MergeStrategy.last)
     ).enablePlugins(AssemblyPlugin)
 }
