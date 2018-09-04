@@ -1,4 +1,4 @@
-package com.keene.spark.examples.hive
+package com.keene.spark.examples.kafka
 
 import com.keene.core.Runner
 import com.keene.core.implicits._
