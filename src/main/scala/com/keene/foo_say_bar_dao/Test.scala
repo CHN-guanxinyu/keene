@@ -4,12 +4,18 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 
 import com.keene.spark.utils.SimpleSpark
+import com.keene.core.implicits._
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.parallel.ForkJoinTaskSupport
 import scala.concurrent.forkjoin.ForkJoinPool
 import scala.xml.Node
 
+
+object Test2 extends App with SimpleSpark{
+  spark.fromKafka("kafka-broker2.jd.local:9092", "kafka-broker2.jd.local:9092").toConsole
+  spark.streams.awaitAnyTermination
+}
 object Task extends App with SimpleSpark {
 
 
@@ -118,3 +124,4 @@ object Task1 extends App with SimpleSpark {
   val a = new A()
   println(a.from, a.unionTable)
 }
+
