@@ -412,3 +412,53 @@ file1.xml:
 * shell脚本中只需要通过`--config-path`指定`<results>`所在文件的绝对路径即可。
 * 框架中会在上下文中注册许多常用的udf/udaf，供开发者使用，后续会给出列表。结合spark sql的内置函数，基本可以满足绝大部分的计算需求。
 * 开发者可以继承ExecutionContext接口，实现`override def extEnv()`方法，可以注册自己的udf和udaf，打包后通过脚本的`--ext-class`指定类名，多个的话用逗号隔开，即可在xml中使用相应udf了。
+
+# Xspark(Developing...)
+hive风格的spark代码解释器
+使用示例：
+```
+//直接执行代码
+$ spark -e "val foo = sc.textFile(1 to 3)"
+foo: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[0]
+
+
+$ spark -e " \
+    val bar = foo.collect \
+    bar foreach println \
+"
+bar: Array[Int] = Array(1, 2, 3)
+1
+2
+3
+
+//执行文件内容
+$ spark -f path/to/file
+
+//批量执行文件内容
+$ spark -f path/to/file1, path/to/file2
+
+//执行目录下所有文件
+$ spark -f path1, path2
+
+//添加classpath
+$ spark –j path/to/jar1, path/to/jar2
+
+//以目录为classpath
+$ spark -j path1, path2 
+
+//卸载jar
+$ spark -d path1, path/to/jar1
+
+//清空添加的所有jar
+$ spark -D
+```
+## 用途--快速调试
+•	每次执行只有从代码执行到结束的时间，省去了一点小改动导致的重新编译、spark启动的时间
+•	热加/卸载jar，无需每次修改依赖导致重启
+## 调试流程
+1.	首先打包，将jar通过-j加到classpath
+2.	每次调试就只需-f修改的文件
+3.	-e去执行某个代码片段或者直接在步骤2-f将测试代码文件放到最后
+## 环境共享
+程序维护了一个interpreter server，所有的代码都是向server发消息解释执行的，所以server端拥有完整的共享环境。 如果不希望自己的环境被别人共享，可以执行spark-intp-server-start.sh -p 9999然后之后运行代码指定端口即可spark -p 9999 ...，停止server可以执行spark-intp-server-stop.sh -p 9999
+
