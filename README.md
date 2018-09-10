@@ -246,7 +246,7 @@ class MyContext extends ExecutionContext{
   }
 }
 ```
-然后去执行脚本里添加参数 `--exe-class "package.to.MyContext"`多个context用逗号隔开，之后就可以去xml里使用了
+然后去执行脚本里添加参数 `--ex-class "package.to.MyContext"`多个context用逗号隔开，之后就可以去xml里使用了
 ```xml
 <table name="t_x"
        from="t_1"
