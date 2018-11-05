@@ -130,7 +130,7 @@ case class StringImplicitor(@transient str : String) extends SimpleSpark{
     * @return
     */
 
-  def tab: DataFrame = s"select * from $str" go
+  def tab: DataFrame = spark table str
 
   def removeBlanks = replaceBlanks("")
   def replaceBlanks(): String = replaceBlanks(" ")
