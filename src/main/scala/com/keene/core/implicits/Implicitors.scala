@@ -23,8 +23,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
   * @tparam T
   */
 case class AnyImplicitor[T](@transient t : T)(implicit tag : ClassTag[T]){
-
-  def bc(implicit sc : SparkContext) = sc.broadcast(t).value
+  def bc(implicit sc : SparkContext) = sc broadcast t
 }
 
 case class DataSetImplicitor[T](@transient ds : Dataset[T]) {
