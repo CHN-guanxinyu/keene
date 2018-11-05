@@ -460,5 +460,5 @@ $ spark -D
 2.	每次调试就只需-f修改的文件
 3.	-e去执行某个代码片段或者直接在步骤2-f将测试代码文件放到最后
 ## 环境共享
-程序维护了一个interpreter server，所有的代码都是向server发消息解释执行的，所以server端拥有完整的共享环境。 如果不希望自己的环境被别人共享，可以执行`spark-intp-server-start.sh -p 9999`，port自己定义即可，然后之后运行代码指定端口即可`spark -p 9999 ...`，停止server可以执行`spark-intp-server-stop.sh -p 9999`
+程序维护了一个interpreter server，所有的代码都是向server发消息解释执行的，所以server端拥有完整的共享环境。 默认启动server的脚本`spark-intp-server-start.sh`端口是随机的，如果希望自己的环境多人共享，可以执行`spark-intp-server-start.sh -p 9999`，port自己定义即可，然后之后运行代码指定端口即可`spark -p 9999 ...`，停止server可以执行`spark-intp-server-stop.sh -p 9999`
 
