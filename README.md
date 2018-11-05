@@ -422,10 +422,10 @@ $ spark -e "val foo = sc.textFile(1 to 3)"
 foo: org.apache.spark.rdd.RDD[Int] = ParallelCollectionRDD[0]
 
 
-$ spark -e " \
-    val bar = foo.collect \
-    bar foreach println \
-"
+$ spark -e """
+    val bar = foo.collect 
+    bar foreach println 
+"""
 bar: Array[Int] = Array(1, 2, 3)
 1
 2
