@@ -1,5 +1,5 @@
 
-lazy val keene = preownedKittenProject("keene" , ".").
+lazy val afflatus = preownedKittenProject("keene" , ".").
   settings(
     onLoadMessage ~= ( _ + ( if( (sys props "java.specification.version") < Version.min.jdk ) {
       s"""
@@ -30,12 +30,7 @@ def preownedKittenProject(name : String , path : String ) : Project ={
   Project( name , file(path) ).
     settings(
       version := "1.2-SNAPSHOT",
-      organization := "com.keene",
-      scalaVersion := Version.scala,
-      test in assembly := {},
-      assemblyMergeStrategy in assembly := {
-        case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.filterDistinctLines
-        case _ => MergeStrategy.last
-      }
-    ).enablePlugins(AssemblyPlugin)
+      organization := "com.afflatus",
+      scalaVersion := Version.scala
+    )
 }
