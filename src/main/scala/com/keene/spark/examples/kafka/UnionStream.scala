@@ -5,6 +5,7 @@ import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.kafka.KafkaParam
 import com.keene.spark.utils.SimpleSpark
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 /**
@@ -12,7 +13,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
   * 其实跟是否是Kafka无关了
   * Streaming的范围
   */
-class UnionStream extends SimpleSpark with Runner{
+class UnionStream extends SimpleSpark[SparkSession] with Runner{
   override def run(implicit args: Array[String]): Unit = {
     import spark.implicits._
 

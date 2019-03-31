@@ -6,8 +6,8 @@ object dπ__πb extends π__π with App {
 
   π__π ^-^ (> → <)
 
-  def * = π__π /~~
-  def ^ = *
+  def * : π__π  = π__π /~~
+  def ^ : π__π = *
 }
 class π__π {
   val a = 1

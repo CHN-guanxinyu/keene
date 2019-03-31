@@ -2,11 +2,11 @@ package com.keene.spark.examples.hive
 import com.keene.core.Runner
 import com.keene.core.implicits._
 import com.keene.spark.utils.SimpleSpark
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 
-class UDAFTest extends Runner with SimpleSpark {
+class UDAFTest extends Runner with SimpleSpark[SparkSession] {
   override def run (implicit args: Array[ String ]): Unit = {
     "select * from (select 1 id, 1 key,3 value) union ( select 1 id, 2 key, 4 value) ".go createOrReplaceTempView "t"
     spark.udf.register("foo", MyUdaf)

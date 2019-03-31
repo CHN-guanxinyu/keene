@@ -5,13 +5,14 @@ import com.keene.core.implicits._
 import com.keene.core.parsers.{Arguments, ArgumentsParser}
 import com.keene.kafka.KafkaParam
 import com.keene.spark.utils.SimpleSpark
+import org.apache.spark.sql.SparkSession
 
 /**
   * 最基本的功能:
   * Streming从Kafka读
   * 转换一下写回Kafka
   */
-class BaseReadWriteToKafka extends SimpleSpark with Runner{
+class BaseReadWriteToKafka extends SimpleSpark[SparkSession] with Runner{
 
   override def run(implicit args: Array[String]): Unit = {
 

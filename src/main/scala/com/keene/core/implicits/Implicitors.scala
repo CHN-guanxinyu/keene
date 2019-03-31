@@ -106,7 +106,7 @@ case class SparkSessionImplicitor(@transient spark : SparkSession){
     new String(bytes, StandardCharsets.UTF_8)
 }
 
-case class StringImplicitor(@transient str : String) extends SimpleSpark{
+case class StringImplicitor(@transient str : String) extends SimpleSpark[SparkSession]{
 
   /**
     * Usage: "package.to.classA".as[classA].foo.bar
